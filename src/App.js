@@ -1,25 +1,36 @@
-import logo from './logo.svg';
 import './App.css';
+import Dashboard from './components/Dashboard/Dashboard';
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+} from "@apollo/client";
+import { RetryLink } from 'apollo-link-retry';
+import { HttpLink } from 'apollo-link-http';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const directionalLink = new RetryLink().split(
+  (operation) => operation.getContext().clientName === 'mainnet',
+  new HttpLink({ uri: "https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-v2" }),
+  new HttpLink({ uri: "https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-polygon-v2" })
+);
+
+
+const client = new ApolloClient({
+  cache: new InMemoryCache(),
+  link: directionalLink
+});
+
+
+
+  function App() {
+    return (
+      <div>
+        <ApolloProvider client={client}>
+        <Dashboard></Dashboard>
+        </ApolloProvider>
+        
+      </div>
+    );
+  }
 
 export default App;
