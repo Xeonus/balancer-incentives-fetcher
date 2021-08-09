@@ -7,22 +7,24 @@ import {
 } from "@apollo/client";
 import { RetryLink } from 'apollo-link-retry';
 import { HttpLink } from 'apollo-link-http';
+//Init firebase statistics:
+import firebase from './config/firebase';
 
+//Set up directional links
 const directionalLink = new RetryLink().split(
   (operation) => operation.getContext().clientName === 'mainnet',
   new HttpLink({ uri: "https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-v2" }),
   new HttpLink({ uri: "https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-polygon-v2" })
 );
 
-
+//Instantiate Apollo client
 const client = new ApolloClient({
   cache: new InMemoryCache(),
   link: directionalLink
 });
 
 
-
-  function App() {
+  export default function App() {
     return (
       <div>
         <ApolloProvider client={client}>
@@ -32,5 +34,3 @@ const client = new ApolloClient({
       </div>
     );
   }
-
-export default App;

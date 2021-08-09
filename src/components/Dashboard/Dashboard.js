@@ -15,48 +15,9 @@ import BalancerLogo from './../resources/logo-dark.svg';
 import PolygonLogo from './../resources/ethereum.svg';
 import EtherLogo from './../resources/polygon.svg';
 
+
 export default function Dashboard() {
-
-
-
-    const styles = {
-        paperContainer: {
-            backgroundImage: `url(${BgImage})`,
-
-        }
-    };
-
-    const state = {
-        newestWeek: '60',
-        weekNumber: 'week_60',
-        jsonData: [],
-    };
-
-
-    const [polygon, setPolygon] = useState(true);
-    const [jsonData, setJsonData] = useState("");
-    const [data, setData] = useState(state);
-    const palletType = "dark";
-    const mainPrimaryColor = "#ffffff";
-    const mainSecondaryColor = "#272936";
-    const backgroundColor = "	#091027";
-    const paperColor = "#272936";
-    const theme = createTheme({
-        palette: {
-            type: palletType,
-            primary: {
-                main: mainPrimaryColor
-            },
-            secondary: {
-                main: mainSecondaryColor
-            },
-            background: {
-                default: backgroundColor,
-                paper: paperColor
-            }
-        }
-    });
-
+    
     //Theme properties
     const useStyles = makeStyles((theme) => ({
         backDrop: {
@@ -66,14 +27,12 @@ export default function Dashboard() {
             paddingTop: theme.spacing(2),
             paddingBottom: theme.spacing(2),
         },
-
         root: {
             flexGrow: 1,
             spacing: 0,
             direction: 'row',
             alignItems: 'center',
             justifyContent: 'center',
-
         },
         title: {
             flexGrow: 1,
@@ -83,7 +42,6 @@ export default function Dashboard() {
             justifyContent: 'center',
             textAlign: 'center',
             align: "center",
-
         },
         titleBox: {
             flexGrow: 1,
@@ -92,7 +50,6 @@ export default function Dashboard() {
             justifyContent: 'center',
             textAlign: 'center',
             align: "center",
-
         },
         container: {
             flexGrow: 1,
@@ -101,8 +58,6 @@ export default function Dashboard() {
             flexDirection: 'column',
             display: 'flex',
             justifyContent: 'center',
-
-
         },
         footer: {
             flexGrow: 1,
@@ -127,17 +82,49 @@ export default function Dashboard() {
     const classes = useStyles();
 
 
+    //
+    //TODO: fetch Data in higher component or redux
+    //
+    //const [data, setData] = useState(state);
+    //TODO: Onchange handler for passing data
+    // const onchange = (data) => {
+    //     setData(data)
+    // }
+    // const state = {
+    //     newestWeek: '60',
+    //     weekNumber: 'week_60',
+    //     jsonData: [],
+    // };
+
+    const [polygon, setPolygon] = useState(true);
+    const [jsonData, setJsonData] = useState("");
+    const palletType = "dark";
+    const mainPrimaryColor = "#ffffff";
+    const mainSecondaryColor = "#272936";
+    const backgroundColor = "	#091027";
+    const paperColor = "#272936";
+    const theme = createTheme({
+        palette: {
+            type: palletType,
+            primary: {
+                main: mainPrimaryColor
+            },
+            secondary: {
+                main: mainSecondaryColor
+            },
+            background: {
+                default: backgroundColor,
+                paper: paperColor
+            }
+        }
+    });
 
     const handleThemeChange = () => {
         //Update cookie
         setPolygon(!polygon);
     }
 
-    //Onchange handler
-    const onchange = (data) => {
-        setData(data)
-    }
-    //Fetch Balancer Front-End Json:
+    //Fetch Balancer Front-End Json containing incentives data:
     useEffect(() => {
         const url = "https://raw.githubusercontent.com/balancer-labs/frontend-v2/master/src/lib/utils/liquidityMining/MultiTokenLiquidityMining.json";
 
@@ -155,9 +142,7 @@ export default function Dashboard() {
         fetchData();
     }, []);
 
-
-
-
+    //Polygon Table
     const showPolygon = () => (
         <Grid item xs={12}>
             <Paper elevation={3} className={classes.paper}>
@@ -168,6 +153,7 @@ export default function Dashboard() {
         </Grid>
     );
 
+    //ETH Mainnet table
     const showEther = () => (
         <Grid item xs={12}>
             <Paper elevation={3} className={classes.paper}>
@@ -182,7 +168,6 @@ export default function Dashboard() {
         <div>
             <ThemeProvider theme={theme} >
                 <CssBaseline />
-
                 <Container className={classes.container} >
                     <Paper item xs={12} elevation={3} className={classes.backDrop} direction="column" justify="space-evenly" component="span">
                         <Box className={classes.titleBox} alignItems="center" flexDirection="column">
@@ -194,12 +179,9 @@ export default function Dashboard() {
                         </Box>
                     </Paper>
                     <Grid container direction="row" justify="left" alignItems="center">
-
-
                         <img src={PolygonLogo} alt="Polygon Logo" width="20" />
                         <Switch checked={polygon} onChange={handleThemeChange} className={classes.menuButton} color="primary"></Switch>
                         <img src={EtherLogo} alt="Ethereum Logo" width="20" />
-
                     </Grid>
                     <Grid container={true} spacing={2} className={classes.root} component="span" >
                         {/* Dynamic Elements */}
@@ -214,5 +196,4 @@ export default function Dashboard() {
             </ThemeProvider>
         </div>
     );
-
 }
