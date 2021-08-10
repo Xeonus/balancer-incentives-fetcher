@@ -138,7 +138,6 @@ EnhancedTableHead.propTypes = {
   onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.oneOf(['asc', 'desc']).isRequired,
   orderBy: PropTypes.string.isRequired,
-  rowCount: PropTypes.number.isRequired,
 };
 
 export function PoolQuery(props) {
@@ -276,12 +275,13 @@ export function PoolQuery(props) {
     <Typography noWrap={false} variant="caption" color="textSecondary" component="span">Error while fetching Balancer Subgraph data :(</Typography>
   );
 
-  rows = createDataFunction(data.balancers[0], jsonData[newestWeek][1]);
-
+  if (data !== null && jsonData[newestWeek] !== null) {
+    rows = createDataFunction(data.balancers[0], jsonData[newestWeek][1]);
+  };
 
   return (
     <div>
-      <Title>Polygon - Week {weekNumber}</Title>
+      <Title>Polygon - Incentives of Week {weekNumber}</Title>
       <Container fixed>
         <Paper className={classes.paper} elevation={3}>
           <Table className={classes.table} size="small" aria-label="a dense table">

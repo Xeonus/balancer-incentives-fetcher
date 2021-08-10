@@ -14,9 +14,20 @@ import Footer from '../UI/Footer'
 import BalancerLogo from './../resources/logo-dark.svg';
 import PolygonLogo from './../resources/ethereum.svg';
 import EtherLogo from './../resources/polygon.svg';
+import CoinPriceData from '../CoinPriceData/CoinPriceData';
 
 
 export default function Dashboard() {
+
+    
+
+    //Default initialization. In future replace with rest-api elements
+    const state = {
+        coinData: [],
+
+    };
+
+    const [data, setData] = useState(state);
     
     //Theme properties
     const useStyles = makeStyles((theme) => ({
@@ -164,8 +175,19 @@ export default function Dashboard() {
         </Grid>
     );
 
+    //Coin-price data
+    const showPriceData = () => (
+        <Grid item xs={12}>
+            <Paper elevation={3} className={classes.paper}>
+                <Box p={1}>
+                    <CoinPriceData></CoinPriceData>
+                </Box>
+            </Paper>
+        </Grid>
+    );
+
     return (
-        <div>
+        <div key='Container'>
             <ThemeProvider theme={theme} >
                 <CssBaseline />
                 <Container className={classes.container} >
@@ -184,7 +206,13 @@ export default function Dashboard() {
                         <img src={EtherLogo} alt="Ethereum Logo" width="20" />
                     </Grid>
                     <Grid container={true} spacing={2} className={classes.root} component="span" >
-                        {/* Dynamic Elements */}
+                    <Grid item xs={12} component="span">
+                    <Paper elevation={3} className={classes.paper}>
+                        <Title>Tokenomics</Title>
+                        <CoinPriceData data={data} onchange={(e) => { onchange(e) }} />
+                    </Paper>
+                </Grid>
+                        {showPriceData}
                         {polygon ? showPolygon() : showEther()}
                         <Grid item xs={12} component="span">
                             <Paper elevation={3} className={classes.paper}>

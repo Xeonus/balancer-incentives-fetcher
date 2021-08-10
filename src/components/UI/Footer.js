@@ -24,7 +24,8 @@ export default function Footer() {
                         <Link color="inherit" href="https://etherscan.io/address/0xf9e0dE629DE67eC90FBe095d2e6843f6A76aeEc2" target="_blank">
                             0xf9e0dE629DE67eC90FBe095d2e6843f6A76aeEc2
                         </Link> <br />
-                        Beta Build - v0.3.2
+                        Information provided as is. Not financial advice. <br />
+                        Beta Build - v0.3.3 
                     </Typography>
                 </Grid>
         </div>
