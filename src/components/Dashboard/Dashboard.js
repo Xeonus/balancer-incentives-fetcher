@@ -15,6 +15,7 @@ import BalancerLogo from './../resources/logo-dark.svg';
 import PolygonLogo from './../resources/ethereum.svg';
 import EtherLogo from './../resources/polygon.svg';
 import CoinPriceData from '../CoinPriceData/CoinPriceData';
+import Typography from '@material-ui/core/Typography';
 
 
 export default function Dashboard() {
@@ -98,9 +99,9 @@ export default function Dashboard() {
     //
     //const [data, setData] = useState(state);
     //TODO: Onchange handler for passing data
-    // const onchange = (data) => {
-    //     setData(data)
-    // }
+    const onchange = (data) => {
+         setData(data)
+     }
     // const state = {
     //     newestWeek: '60',
     //     weekNumber: 'week_60',

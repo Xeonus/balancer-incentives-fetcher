@@ -262,7 +262,7 @@ export function PoolQuery(props) {
   );
 
   //If data is not fully loaded, display progress
-  if (loading || jsonData[newestWeek] === null) return (
+  if (loading || jsonData === null) return (
     <div>
       <Grid direction="row">
         <CircularProgress></CircularProgress>
@@ -275,7 +275,7 @@ export function PoolQuery(props) {
     <Typography noWrap={false} variant="caption" color="textSecondary" component="span">Error while fetching Balancer Subgraph data :(</Typography>
   );
 
-  if (data !== null && jsonData[newestWeek] !== null) {
+  if (data !== null && jsonData !== null) {
     rows = createDataFunction(data.balancers[0], jsonData[newestWeek][1]);
   };
 

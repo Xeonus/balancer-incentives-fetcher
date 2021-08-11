@@ -6,8 +6,6 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import Paper from '@material-ui/core/Paper';
 
@@ -28,8 +26,6 @@ const styles = theme => ({
     margin: "auto"
   },
 });
-
-const api_key = process.env.REACT_APP_ETHERSCAN_API_KEY;
 
 function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
@@ -59,7 +55,7 @@ class CoinPriceData extends Component {
     const json = await response.json();
     const coinData = json;
     var today = new Date();
-    var time = today.toLocaleTimeString();
+    var time = today.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     this.setState((state) => ({
       coinData: { ...coinData },
       coinDataSize: coinData.length,
@@ -122,7 +118,7 @@ class CoinPriceData extends Component {
     if (!this.state.coinData[2].current_price) {
 
       return (
-        <div component="span">Could not fetch any price data...</div>
+        <div component="span">Could not fetch any price data from coingecko API...</div>
 
       )
     }
@@ -147,7 +143,7 @@ class CoinPriceData extends Component {
         <Container fixed>
         <Paper className={classes.paper} elevation={3}>
           <Table className={classes.table} size="small" aria-label="a dense table">
-          <caption>Price data fetched all 60s through Coingecko API. Last upate: {this.state.time}</caption>
+          <caption>Price data fetched every minute through Coingecko API. Last update: {this.state.time}</caption>
             <TableHead>
               <TableRow >
                 <TableCell align="left"><b>Token</b></TableCell>
@@ -171,10 +167,6 @@ class CoinPriceData extends Component {
               ))}
             </TableBody>
           </Table>
-            <Box m={1}>
-                <Typography variant="caption" display="block" gutterBottom color="primary" component="span">
-                </Typography>
-            </Box>
             </Paper>
             </Container>
             </div>
