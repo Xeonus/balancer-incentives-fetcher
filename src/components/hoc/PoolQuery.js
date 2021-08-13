@@ -109,7 +109,6 @@ function EnhancedTableHead(props) {
           <TableCell
             key={headCell.id}
             align={headCell.numeric ? 'right' : 'left'}
-           
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel
@@ -142,7 +141,7 @@ EnhancedTableHead.propTypes = {
 
 export function PoolQuery(props) {
 
-  const jsonData = { ...props.data };
+  let jsonData = { ...props.data };
 
   //Create data helper function:
   function createData(poolName, hyperLink, totalLiq, bal, matic, qi, mta) {
@@ -264,7 +263,7 @@ export function PoolQuery(props) {
   //If data is not fully loaded, display progress
   if (loading || jsonData === null) return (
     <div>
-      <Grid direction="row">
+      <Grid>
         <CircularProgress></CircularProgress>
         {/* <Typography noWrap={false} variant="caption" color="textSecondary" component="span">Loading Subgraph...</Typography> */}
       </Grid>
@@ -282,7 +281,7 @@ export function PoolQuery(props) {
   return (
     <div>
       <Title>Polygon - Incentives of Week {weekNumber}</Title>
-      <Container fixed>
+      <Container  fixed>
         <Paper className={classes.paper} elevation={3}>
           <Table className={classes.table} size="small" aria-label="a dense table">
           <EnhancedTableHead
@@ -296,16 +295,15 @@ export function PoolQuery(props) {
             <TableBody>
               {stableSort(rows, getComparator(order, orderBy))
                 .map((row, index) => {
-                  const isItemSelected = isSelected(row.name);
-                  const labelId = `enhanced-table-checkbox-${index}`;
+                  const isItemSelected = isSelected(row.poolName);
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.name)}
+                      onClick={(event) => handleClick(event, row.poolName)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.name}
+                      key={row.poolName}
                       selected={isItemSelected}
                     >
                       <TableCell align="left"><Link href={row.hyperLink}>{row.poolName}</Link></TableCell>
