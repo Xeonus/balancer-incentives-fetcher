@@ -1,4 +1,5 @@
 import Title from './../UI/Title';
+import Header from '../UI/Header';
 import Container from "@material-ui/core/Container";
 import { Box, Switch } from '@material-ui/core';
 import BgImage from './../resources/bg-header.svg';
@@ -8,28 +9,85 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Typography from "@material-ui/core/Typography";
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { PoolQuery } from '../hoc/PoolQuery';
+import { PolygonQuery } from '../hoc/PolygonQuery';
 import { MainnetQuery } from '../hoc/MainnetQuery';
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Footer from '../UI/Footer'
 import BalancerLogo from './../resources/logo-dark.svg';
-import PolygonLogo from './../resources/ethereum.svg';
-import EtherLogo from './../resources/polygon.svg';
+import EtherLogo from './../resources/ethereum.svg';
+import PolygonLogo from './../resources/polygon.svg';
+import ArbitrumLogo from './../resources/arbitrum.svg';
 import CoinPriceData from '../CoinPriceData/CoinPriceData';
 import { RewardsEstimator } from '../RewardsEstimator/RewardsEstimator';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import ReactRoundedImage from "react-rounded-image";
+import PropTypes from 'prop-types';
+import Roadmap from '../UI/Roadmap';
 
 
 
-export default function Dashboard() {
+function TabPanel(props) {
+    const { children, value, index, ...other } = props;
+
+    return (
+        <div component="span"
+            role="tabpanel"
+            hidden={value !== index}
+            id={`full-width-tabpanel-${index}`}
+            aria-labelledby={`full-width-tab-${index}`}
+            {...other}
+        >
+            {value === index && (
+                <Box>
+                    <Typography component="span">{children}</Typography>
+                </Box>
+            )}
+        </div>
+    );
+}
+
+TabPanel.propTypes = {
+    children: PropTypes.node,
+    index: PropTypes.any.isRequired,
+    value: PropTypes.any.isRequired,
+};
+
+function a11yProps(index) {
+    return {
+        id: `full-width-tab-${index}`,
+        'aria-controls': `full-width-tabpanel-${index}`,
+    };
+}
+
+
+
+export default function Dashboard(props) {
 
 
 
     //Default initialization. In the future replace with REDUX?
     const state = {
         coinData: [],
+        chainId: 'polygon'
 
     };
+
+    //Tab states
+    const [value, setValue] = React.useState(0);
+
+    const handleChange = (event, newValue) => {
+        setValue(newValue);
+    };
+
+
 
     const [data, setData] = useState(state);
     const [loading, setLoading] = useState(false);
@@ -39,7 +97,7 @@ export default function Dashboard() {
     const mainPrimaryColor = "#ffffff";
     const mainSecondaryColor = "#272936";
     const backgroundColor = "	#091027";
-    const paperColor = "#272936";
+    const paperColor = "#162031";
     const theme = createTheme({
         palette: {
             type: palletType,
@@ -52,8 +110,30 @@ export default function Dashboard() {
             background: {
                 default: backgroundColor,
                 paper: paperColor
-            }
-        }
+            },
+
+        },
+        active_tabStyle: {
+            fontSize: 11,
+            color: 'white',
+            backgroundColor: 'red',
+        },
+        typography: {
+            // Use the system font instead of the default Roboto font.
+            fontFamily: [
+
+                'Inter-Variable',
+                '-apple-system',
+                'BlinkMacSystemFont',
+                'Segoe UI',
+                'Helvetica',
+                'Arial',
+                'sans-serif',
+                'Apple Color Emoji',
+                'Segoe UI Emoji',
+
+            ].join(','),
+        },
     });
 
     //Theme properties
@@ -118,6 +198,17 @@ export default function Dashboard() {
             justifyContent: 'center',
             color: '#272936',
         },
+        formControl: {
+            margin: theme.spacing(1),
+            minWidth: 'auto',
+        },
+        tabTheme: {
+            background: 'linear-gradient(45deg, #1022d7 30%, #6a7cff 90%)',
+            maxWidth:500,
+            align: 'center',
+            justifyContent: 'center',
+            borderRadius:3
+         },
     }));
 
     const classes = useStyles();
@@ -137,12 +228,22 @@ export default function Dashboard() {
     //     jsonData: [],
     // };
 
+    const handleFormChange = (event) => {
+        const name = event.target.name;
+        setData({
+            ...state,
+            [name]: event.target.value,
+        });
+    };
+
 
 
     const handleThemeChange = () => {
         //Update display
         setPolygon(!polygon);
     }
+
+    console.log("data", data)
 
     //Fetch Balancer Front-End Json containing incentives data:
     useEffect(() => {
@@ -167,7 +268,7 @@ export default function Dashboard() {
         <Grid item="true" xs={12}>
             <Paper elevation={3} className={classes.paper}>
                 <Box p={1}>
-                    <PoolQuery data={jsonData} ></PoolQuery>
+                    <PolygonQuery data={jsonData} coinData={data} ></PolygonQuery>
                 </Box>
             </Paper>
         </Grid>
@@ -178,29 +279,83 @@ export default function Dashboard() {
         <Grid item xs={12}>
             <Paper elevation={3} className={classes.paper}>
                 <Box p={1}>
-                    <MainnetQuery data={jsonData} ></MainnetQuery>
+                    <MainnetQuery data={jsonData} coinData={data}></MainnetQuery>
                 </Box>
             </Paper>
         </Grid>
     );
 
+    //Arbitrum table (TODO)
+    const showArbitrum = () => (
+        <Grid item xs={12}>
+            <Paper elevation={3} className={classes.paper}>
+                <Box p={1}>
+                    <Title>Coming soon! No incentives live yet!</Title>
+                </Box>
+            </Paper>
+        </Grid>
+    );
+
+    //Render Switch for Dropdown Menu
+    function renderSwitch(param) {
+        switch (param) {
+            case 'polygon':
+                return showPolygon();
+            case 'arbitrum':
+                return showArbitrum();
+            default:
+                return showEther();
+        }
+    };
+
+    function headerSwitch(context) {
+        switch (context) {
+            case 0:
+                return (
+                    <Header className={classes.title}  >{
+                        `
+                        Liquidity Mining Incentives
+                        `}
+                    </Header>
+                );
+            case 1:
+                return (
+                    <Header className={classes.title}  >{
+                        `
+                            Rewards Estimation and Calculation
+                            `}
+                    </Header>
+                )
+                case 2:
+                return (
+                    <Header className={classes.title}  >{
+                        `
+                            Balancer Tools Development Roadmap
+                            `}
+                    </Header>
+                )
+        }
+    };
+
+
+
     //Coin-price data
     const showPriceData = () => (
         <Grid item xs={12}>
             <Paper elevation={3} className={classes.paper}>
-                <Box p={1}>
-                    <CoinPriceData></CoinPriceData>
+                <Box>
+                    <CoinPriceData coinData={data}></CoinPriceData>
                 </Box>
             </Paper>
         </Grid>
     );
 
     //Rewards fetcher
-    const showRewardsEstimator = () => (
+    const showRewardsEstimator = (chain) => (
         <Grid item xs={12}>
             <Paper elevation={3} className={classes.paper}>
                 <Box p={1}>
-                    <RewardsEstimator isPolygon={polygon}></RewardsEstimator>
+                    <RewardsEstimator isPolygon={chain === 'polygon'}></RewardsEstimator>
                 </Box>
             </Paper>
         </Grid>
@@ -223,38 +378,132 @@ export default function Dashboard() {
     return (
         <div key='Container'>
             <ThemeProvider theme={theme} >
+                <AppBar position="static" color="secondary" style={{ margin: -0 }}>
+                    <Toolbar>
+                        <Box display="flex" alignItems="center">
+                            <Box p={1}>
+                                <img src={BalancerLogo} alt="Balancer Logo" width="30" />
+                            </Box>
+                            <Box mr={2}>
+                                <Typography variant="h6" className={classes.root}>
+                                    Balancer Tools
+                                </Typography>
+                            </Box>
+                            <FormControl variant="outlined" size="small" className={classes.formControl}>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id="demo-simple-select"
+                                    value={data.chainId}
+                                    onChange={handleFormChange}
+                                    inputProps={{
+                                        name: 'chainId',
+                                        id: 'chainId-native-simple',
+                                    }}
+                                >
+                                    <MenuItem value={'ethereum'}>
+                                        <Box display="flex" alignItems="center">
+                                            <Box mr={0.5}>
+                                                <ReactRoundedImage
+                                                    image={EtherLogo}
+                                                    imageWidth="20"
+                                                    imageHeight="20"
+                                                    roundedSize="0"
+                                                />
+                                            </Box>
+                                            <Box>
+                                                Ethereum
+                                            </Box>
+                                        </Box>
+                                    </MenuItem>
+                                    <MenuItem value={'polygon'}>
+                                        <Box display="flex" alignItems="center">
+                                            <Box mr={0.5}>
+                                                <ReactRoundedImage
+                                                    image={PolygonLogo}
+                                                    imageWidth="20"
+                                                    imageHeight="20"
+                                                    roundedSize="0"
+                                                />
+                                            </Box>
+                                            <Box>
+                                                Polygon
+                                            </Box>
+                                        </Box>
+                                    </MenuItem>
+                                    <MenuItem value={'arbitrum'}>
+                                        <Box display="flex" alignItems="center">
+                                            <Box mr={0.5}>
+                                                <ReactRoundedImage
+                                                    image={ArbitrumLogo}
+                                                    imageWidth="20"
+                                                    imageHeight="20"
+                                                    roundedSize="0"
+                                                />
+                                            </Box>
+                                            <Box>
+                                                Arbitrum
+                                            </Box>
+                                        </Box>
+                                    </MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Box>
+
+                    </Toolbar>
+                    <Box className={classes.backDrop}>
+                        <Box mx="auto" align="center">
+                        <Tabs
+                            value={value}
+                            onChange={handleChange}
+                            indicatorColor="primary"
+                            textColor="primary"
+                            centered
+                            className={classes.tabTheme}
+
+                        >
+                            <Tab label="Incentives" {...a11yProps(0)} />
+                            <Tab label="Rewards Estimation" {...a11yProps(1)} />
+                            <Tab label="Roadmap" {...a11yProps(2)} />
+                        </Tabs>
+                        <Box className={classes.titleBox}>
+                            {headerSwitch(value)}
+                        </Box>
+                        </Box>
+                    </Box>
+                </AppBar>
                 <CssBaseline />
                 <Container className={classes.container}  >
-                    <Paper xs={12} elevation={3} className={classes.backDrop} justify="space-evenly" component="span">
-                        <Box className={classes.titleBox}>
-                            <img src={BalancerLogo} alt="Balancer Logo" width="30" />
-                            <Title className={classes.title}  >{`Balancer
-                                Liquidity Mining Incentives
-                                `}
-                            </Title>
-                        </Box>
-                    </Paper>
-                    <Grid container justifyContent="flex-start" alignItems="center">
-                        <img src={PolygonLogo} alt="Polygon Logo" width="20" />
-                        <Switch checked={polygon} onChange={handleThemeChange} className={classes.menuButton} color="primary"></Switch>
-                        <img src={EtherLogo} alt="Ethereum Logo" width="20" />
-                    </Grid>
-                    <Grid container className={classes.root} spacing={2} component="span" >
-                        <Grid item xs={12} component="span">
-                            <Paper elevation={3} className={classes.paper}>
-                                <Title>Tokenomics</Title>
-                                <CoinPriceData data={data} onchange={(e) => { onchange(e) }} />
-                            </Paper>
+                    <TabPanel value={value} index={0}>
+                        <Grid container className={classes.root} spacing={2} component="span" >
+                            <Grid item xs={12} component="span">
+                                <Paper elevation={3} className={classes.paper}>
+                                    <Title>Tokenomics</Title>
+                                    <CoinPriceData data={data} onchange={(e) => { onchange(e) }} />
+                                </Paper>
+                            </Grid>
+                            {showPriceData}
+                            {renderSwitch(data.chainId)}
+
+                            <Grid item xs={12} component="span">
+                                <Paper elevation={3} className={classes.paper}>
+                                    <Footer className={classes.footer}></Footer>
+                                </Paper>
+                            </Grid>
                         </Grid>
-                        {showPriceData}
-                        {polygon ? showPolygon() : showEther()}
-                        {showRewardsEstimator()}
-                        <Grid item xs={12} component="span">
-                            <Paper elevation={3} className={classes.paper}>
-                                <Footer className={classes.footer}></Footer>
-                            </Paper>
+                    </TabPanel>
+                    <TabPanel value={value} index={1}>
+                        <Grid container className={classes.root} spacing={2} component="span" >
+                            {showRewardsEstimator(data.chainId)}
+                            <Grid item xs={12} component="span">
+                                <Paper elevation={3} className={classes.paper}>
+                                    <Footer className={classes.footer}></Footer>
+                                </Paper>
+                            </Grid>
                         </Grid>
-                    </Grid>
+                    </TabPanel>
+                    <TabPanel value={value} index={2}>
+                        <Roadmap></Roadmap>
+                    </TabPanel>
                 </Container>
             </ThemeProvider>
         </div>

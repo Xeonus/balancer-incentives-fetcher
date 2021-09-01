@@ -8,6 +8,7 @@ import TableRow from '@material-ui/core/TableRow';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Container from '@material-ui/core/Container';
 import Paper from '@material-ui/core/Paper';
+import DynamicValueFormatter from "../hoc/DynamicValueFormatter";
 
 
 const styles = theme => ({
@@ -50,7 +51,7 @@ class CoinPriceData extends Component {
 
   //Fetch coin price data
   async fetchData() {
-    const url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=balancer%2Cmeta%2Cqi-dao%2Cmatic-network%2Cethereum&order=market_cap_desc&per_page=100&page=1&sparkline=false%22";
+    const url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=balancer%2Cmeta%2Cqi-dao%2Cmatic-network%2Clido-dao%2Cethereum&order=market_cap_desc&per_page=100&page=1&sparkline=false%22";
     const response = await fetch(url);
     const json = await response.json();
     const coinData = json;
@@ -159,10 +160,10 @@ class CoinPriceData extends Component {
                   <TableCell component="th" scope="row">
                     {row.name}
                   </TableCell>
-                  <TableCell align="right">{numberWithCommas(Number(row.currentPrice).toFixed(2))}</TableCell>
-                  <TableCell align="right">{numberWithCommas(Number(row.allTimeHigh).toFixed(2))}</TableCell>
-                  <TableCell align="right">{numberWithCommas(Number(row.allTimeLow).toFixed(3))}</TableCell>
-                  <TableCell align="right">{numberWithCommas(Number(row.marketCap).toFixed(2))}</TableCell>
+                  <TableCell align="right"><DynamicValueFormatter value={Number(row.currentPrice).toFixed(2)} name={row.name} decimals={2}/></TableCell>
+                  <TableCell align="right"><DynamicValueFormatter value={Number(row.allTimeHigh).toFixed(2)} name={row.name} decimals={2}/></TableCell>
+                  <TableCell align="right"><DynamicValueFormatter value={Number(row.allTimeLow).toFixed(3)} name={row.name} decimals={3}/></TableCell>
+                  <TableCell align="right"><DynamicValueFormatter value={Number(row.marketCap).toFixed(2)} name={row.name} decimals={0}/></TableCell>
                 </TableRow>
               ))}
             </TableBody>

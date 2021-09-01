@@ -8,7 +8,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Paper from '@material-ui/core/Paper';
-import Title from './../UI/Title';
+import Title from '../UI/Title';
 import Link from '@material-ui/core/Link';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
@@ -44,17 +44,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-//Balancer URL:
-const balancerUrl = 'https://app.balancer.fi/#/pool/';
-const lidoId = '0x5a98fcbea516cf06857215779fd812ca3bef1b32';
-const balId = '0xba100000625a3754423978a60c9317c58a424e3d';
-
 //-------Refactor into HOC / REDUX--------
 
-//Number formatting
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
-}
+//Token and Balancer infos:
+const qiId = '0x580a84c73811e1839f75d86d75d88cca0c241ff4';
+const mtaId = '0xF501dd45a1198C2E1b5aEF5314A68B9006D842E0';
+const maticId = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270';
+const balId = '0x9a71012b13ca4d3d0cdc72a177df3ef03b0e76a3';
+const balancerUrl = 'https://polygon.balancer.fi/#/pool/';
 
 //Descending comparator
 function descendingComparator(a, b, orderBy) {
@@ -92,7 +89,8 @@ const headCells = [
   { id: 'poolName', numeric: false, disablePadding: true, label: 'Pool' },
   { id: 'totalLiq', numeric: true, disablePadding: false, label: 'Total Liquidity ($)' },
   { id: 'bal', numeric: true, disablePadding: false, label: 'BAL' },
-  { id: 'lidoAmount', numeric: true, disablePadding: false, label: 'LDO' },
+  { id: 'qi', numeric: true, disablePadding: false, label: 'QI' },
+  { id: 'mta', numeric: true, disablePadding: false, label: 'MTA' },
   { id: 'apr', numeric: true, disablePadding: false, label: 'LM APR (%)' },
 ];
 
@@ -139,15 +137,17 @@ EnhancedTableHead.propTypes = {
   orderBy: PropTypes.string.isRequired,
 };
 
+export function PolygonQuery(props) {
 
-export function MainnetQuery(props) {
+  let jsonData = { ...props.data };
 
-  const jsonData = { ...props.data };
-
-  function createData(poolName, hyperLink, totalLiq,  bal, ldo, apr) {
-    return { poolName, hyperLink, totalLiq, bal, ldo, apr};
+  //Create data helper function:
+  function createData(poolName, hyperLink, totalLiq, bal, qi, mta, apr) {
+    return { poolName, hyperLink, totalLiq, bal, qi, mta, apr};
   }
 
+  
+  //Row variable and state change settings
   let rows = [];
   const [order, setOrder] = React.useState('desc');
   const [orderBy, setOrderBy] = React.useState('bal');
@@ -190,7 +190,6 @@ export function MainnetQuery(props) {
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
-
   //Find newest week
   var week = 0;
   let weekStr = 'week_';
@@ -205,8 +204,8 @@ export function MainnetQuery(props) {
   const weekNumber = week.toString();
   const classes = useStyles();
 
-   //Obtain price from Coingecko Coindata
-   const getPrice = (coinData, coinId) => {
+  //Obtain price from Coingecko Coindata
+  const getPrice = (coinData, coinId) => {
     if ( coinData.coinData) {
       var coinArray = Object.values(coinData.coinData)
     if (coinArray) {
@@ -219,47 +218,42 @@ export function MainnetQuery(props) {
   }
 }
 
-  //Create data function:
-  const createDataFunction = (queryData, myJsonData) => {
-    const myRows = [];
-    queryData.pools.forEach(({ id, tokens, totalLiquidity }) => {
-      if (myJsonData.pools[id.toString()]) {
-        const entry = createData(
-          tokens.map(e => e.symbol ? e.symbol : "MKR").join('/'),
-          balancerUrl.concat(id),
-          Number(totalLiquidity),
-          myJsonData.pools[id.toString()][0].amount,
-        )
-        myRows.push(entry);
-      }
-    });
-    return myRows;
-  };
 
+
+  //Create Table Array function
+  //TODO: move into HOC as single js function that is called by all 
+  //TODO: APR
+  //[amt of tokens distributed weekly] * [price of token] / [total liquidity] * 52
   const createTableArrayFunction = (queryData, myJsonData) => {
     const tableRows = [];
     queryData.pools.forEach(({ id, tokens, totalLiquidity}) => {
       //TODO: Fix manual iteration, change through config and make it dynamic -> dependent on Table Head Cells
-      let balAmount = 0
-      let lidoAmount = 0
       let apr = 0
+      let balAmount = 0
+      let qiAmount = 0
+      let mtaAmount = 0
       if (myJsonData.pools[id.toString()]) {
       myJsonData.pools[id.toString()].forEach((element) => {
         if (element.tokenAddress === balId) {
           balAmount = element.amount
           apr = apr + balAmount * getPrice(props.coinData, 'balancer') / totalLiquidity * 52 * 100
         } 
-        else if (element.tokenAddress === lidoId) {
-          lidoAmount = element.amount
-          apr = apr + lidoAmount * getPrice(props.coinData, 'lido-dao') / totalLiquidity * 52 * 100
+        else if (element.tokenAddress === mtaId) {
+          mtaAmount = element.amount
+          apr = apr + mtaAmount * getPrice(props.coinData, 'meta') / totalLiquidity * 52 * 100
+        }
+        else if (element.tokenAddress === qiId) {
+          qiAmount = element.amount
+          apr = apr + qiAmount * getPrice(props.coinData, 'qi-dao') / totalLiquidity * 52 * 100
         }
       });
       const tableEntry = createData(
-        tokens.map(e => e.symbol ? e.symbol : "MKR").join('/'),
+        tokens.map(e => e.symbol).join('/'),
         balancerUrl.concat(id),
         Number(totalLiquidity),
         balAmount,
-        lidoAmount,
+        qiAmount,
+        mtaAmount,
         apr
       )
       tableRows.push(tableEntry);
@@ -268,12 +262,13 @@ export function MainnetQuery(props) {
     return tableRows;
   };
 
-  //Mainnet Query
+  //Polygon query
+  //TODOs: set in ENV variables / Redux:
   const { loading, error, data } = useQuery(gql`
   {
-    balancers(first: 500) {
+    balancers(first: 5) {
       id
-      pools(first: 500) {
+      pools {
         totalLiquidity
         tokens {
           symbol
@@ -281,37 +276,38 @@ export function MainnetQuery(props) {
         }
         id
       }
-      totalLiquidity
     }
   }
     `,
     {
-      context: { clientName: 'mainnet' },
-      fetchPolicy: "no-cache",
+      context: { clientName: 'polygon' },
+
     },
   );
 
-
   //If data is not fully loaded, display progress
-  if (loading || jsonData[newestWeek] === null) return (
+  if (loading || jsonData === null) return (
     <div>
       <Grid>
         <CircularProgress></CircularProgress>
         {/* <Typography noWrap={false} variant="caption" color="textSecondary" component="span">Loading Subgraph...</Typography> */}
       </Grid>
     </div>);
+
+  //Fetching error warning
   if (error) return (
     <Typography noWrap={false} variant="caption" color="textSecondary" component="span">Error while fetching Balancer Subgraph data :(</Typography>
   );
 
-  rows = createTableArrayFunction(data.balancers[0], jsonData[newestWeek][0]);
-
+  if (data !== null && jsonData !== null && jsonData[newestWeek] !== null) {
+    rows = createTableArrayFunction(data.balancers[0], jsonData[newestWeek][1]);
+  };
 
   return (
     <div>
-      <Title>ETH Mainnet - Incentives of Week {weekNumber}</Title>
-      <Container className={classes.paper} fixed>
-        <Paper  elevation={3}>
+      <Title>Polygon - Incentives of Week {weekNumber}</Title>
+      <Container  fixed>
+        <Paper className={classes.paper} elevation={3}>
           <Table className={classes.table} size="small" aria-label="a dense table">
           <EnhancedTableHead
               classes={classes}
@@ -338,7 +334,8 @@ export function MainnetQuery(props) {
                       <TableCell align="left"><Link href={row.hyperLink}>{row.poolName}</Link></TableCell>
                       <TableCell align="right"><DynamicValueFormatter value={Number(row.totalLiq).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
                       <TableCell align="right"><DynamicValueFormatter value={Number(row.bal).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
-                      <TableCell align="right">{row.ldo === 0 ? '-' : <DynamicValueFormatter value={Number(row.ldo).toFixed(0)} name={row.poolName} decimals={0}/>}</TableCell>
+                      <TableCell align="right">{row.qi === 0 ? '-' : <DynamicValueFormatter value={Number(row.qi).toFixed(0)} name={row.poolName} decimals={0}/>}</TableCell>
+                      <TableCell align="right">{row.mta === 0 ? '-' : <DynamicValueFormatter value={Number(row.mta).toFixed(0)} name={row.poolName} decimals={0}/>}</TableCell>
                       <TableCell align="right">{row.apr === 0 ? '-' : <DynamicValueFormatter value={Number(row.apr).toFixed(2)} name={row.poolName} decimals={2}/>}</TableCell>
                     </TableRow>
                   );

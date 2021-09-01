@@ -4,16 +4,16 @@ import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 
 
-export default function Title(props) {
+export default function Header(props) {
   return (
-    <Box>
-    <Typography align="center" style={{whiteSpace: 'pre-line'}} component="h2" variant="h5" color="primary">
+    <Box p={1}>
+    <Typography align="center" component="h1" variant="h4" color="primary">
       {props.children}
     </Typography>
     </Box>
   );
 }
 
-Title.propTypes = {
+Header.propTypes = {
   children: PropTypes.node
 };
