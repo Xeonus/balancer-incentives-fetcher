@@ -15,6 +15,9 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Container from '@material-ui/core/Container';
 import DynamicValueFormatter from './DynamicValueFormatter';
+import Tooltip from '@material-ui/core/Tooltip';
+import Latex from "react-latex-next";
+import "katex/dist/katex.min.css";
 import {
   useQuery,
   gql
@@ -42,6 +45,12 @@ const useStyles = makeStyles((theme) => ({
     top: 20,
     width: 1,
   },
+  tooltip: {
+    maxWidth: "800",
+    fontSize: "1em",
+    textAlign: "center",
+    whiteSpace: 'normal',
+},
 }));
 
 //Balancer URL:
@@ -50,11 +59,6 @@ const lidoId = '0x5a98fcbea516cf06857215779fd812ca3bef1b32';
 const balId = '0xba100000625a3754423978a60c9317c58a424e3d';
 
 //-------Refactor into HOC / REDUX--------
-
-//Number formatting
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
-}
 
 //Descending comparator
 function descendingComparator(a, b, orderBy) {
@@ -96,6 +100,12 @@ const headCells = [
   { id: 'apr', numeric: true, disablePadding: false, label: 'LM APR (%)' },
 ];
 
+const aprToolTip = 
+      "The liquidity mining annual percentage rate (APR) is calculated as the sum of all incentive APRs: <br /> <br />" +
+      "$" +
+      "\\frac{incentiveAmount \\times priceOfIncentive \\times 52 \\times 100}{totalLiquidity} " +
+      "$ <br /><br />"
+
 function EnhancedTableHead(props) {
   const { classes, order, orderBy, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
@@ -116,7 +126,9 @@ function EnhancedTableHead(props) {
               direction={orderBy === headCell.id ? order : 'asc'}
               onClick={createSortHandler(headCell.id)}
             >
+              {headCell.id === 'apr' ? <Tooltip classes={{ tooltip: classes.tooltip }} title={<Latex>{aprToolTip}</Latex>}><b>{headCell.label}</b></Tooltip> :
               <b>{headCell.label}</b>
+              }
               {orderBy === headCell.id ? (
                 <span className={classes.visuallyHidden}>
                   {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
@@ -219,23 +231,7 @@ export function MainnetQuery(props) {
   }
 }
 
-  //Create data function:
-  const createDataFunction = (queryData, myJsonData) => {
-    const myRows = [];
-    queryData.pools.forEach(({ id, tokens, totalLiquidity }) => {
-      if (myJsonData.pools[id.toString()]) {
-        const entry = createData(
-          tokens.map(e => e.symbol ? e.symbol : "MKR").join('/'),
-          balancerUrl.concat(id),
-          Number(totalLiquidity),
-          myJsonData.pools[id.toString()][0].amount,
-        )
-        myRows.push(entry);
-      }
-    });
-    return myRows;
-  };
-
+  //Create incentives table
   const createTableArrayFunction = (queryData, myJsonData) => {
     const tableRows = [];
     queryData.pools.forEach(({ id, tokens, totalLiquidity}) => {
@@ -267,6 +263,15 @@ export function MainnetQuery(props) {
     });
     return tableRows;
   };
+
+  //Get total worth
+  const getTotalIncentivesWorth = (inputTable) => {
+    var totalWorthInUSD = 0;
+    inputTable.forEach((row) => {
+      totalWorthInUSD = totalWorthInUSD + row.bal * getPrice(props.coinData, 'balancer') + row.ldo * getPrice(props.coinData, 'lido-dao');
+    });
+    return totalWorthInUSD;
+  }
 
   //Mainnet Query
   const { loading, error, data } = useQuery(gql`
@@ -309,7 +314,10 @@ export function MainnetQuery(props) {
 
   return (
     <div>
-      <Title>ETH Mainnet - Incentives of Week {weekNumber}</Title>
+      <Title>{`ETH Mainnet - Incentives of Week `}
+        {weekNumber} {` 
+        `}
+        ~$<DynamicValueFormatter value={getTotalIncentivesWorth(rows).toFixed(0)} name={'totalValue'} decimals={0}/></Title>
       <Container className={classes.paper} fixed>
         <Paper  elevation={3}>
           <Table className={classes.table} size="small" aria-label="a dense table">

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import PropTypes from 'prop-types';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -8,7 +7,6 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import Title from './../UI/Title';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Container from '@material-ui/core/Container';
@@ -47,7 +45,16 @@ const useStyles = makeStyles((theme) => ({
         '@media only screen and (min-width: 800px)': {
             width: '75%'
         },
-    }
+    },
+    button: {
+        background: 'linear-gradient(15deg, #384aff 10%, #f21bf6 95%)',
+        border: 0,
+        borderRadius: 3,
+        boxShadow: '0 3px 5px 2px rgba(56,74,255, .5)',
+        color: 'white',
+        height: 40,
+        padding: '0 30px',
+      },
 }));
 
 export function RewardsEstimator(props) {
@@ -79,6 +86,10 @@ export function RewardsEstimator(props) {
             token_name: 'BAL',
         },
         {
+            token_address: '0x040d1edc9569d4bab2d15287dc5a4f10f56a56b8',
+            token_name: 'BAL',
+        },
+        {
             token_address: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
             token_name: 'MATIC',
         }
@@ -86,12 +97,13 @@ export function RewardsEstimator(props) {
 
     //ChainId ETH is default:
     let chainId = 1;
-    if (props.isPolygon) {
+    if (props.chainId === 'polygon') {
         chainId = 137;
+    } else if (props.chainId === 'arbitrum') {
+        chainId = 42161;
     };
 
     const baseUrl = "https://api.balancer.finance/liquidity-mining/v1/liquidity-provider-multitoken";
-
 
     //Number formatting
     function numberWithCommas(x) {
@@ -172,6 +184,18 @@ export function RewardsEstimator(props) {
             : ''
     );
 
+        //Title Switch
+        function titleSwitch(param) {
+            switch (param) {
+                case 'polygon':
+                    return <Title>Liquidity Mining Estimates for Polygon</Title>
+                case 'arbitrum':
+                    return <Title>Liquidity Mining Estimates for Arbitrum</Title>
+                default:
+                    return <Title>Liquidity Mining Estimates for ETH Mainnet</Title>
+            }
+        };
+
     const resultsFound = () => (
         mapRewardsData(json, maticTokenIDs).length === 0 ?
             <Grid item xs={12}>
@@ -209,7 +233,7 @@ export function RewardsEstimator(props) {
 
     return (
         <div>
-            <Title>Liquidity Mining Estimates for {props.isPolygon ? 'Polygon' : 'ETH Mainnet'}</Title>
+            {titleSwitch(props.chainId)}
             <Container fixed justifyContent="center" alignItems="center">
                 <Box className={classes.alignItemsAndJustifyContent}>
                     <TextField
@@ -224,7 +248,7 @@ export function RewardsEstimator(props) {
                         margin="normal"
                         onChange={handleChange('address')}
                     />
-                    <Button color="primary" variant="outlined" onClick={handleClick}>Request Estimate</Button>
+                    <Button className={classes.button} variant="outlined" onClick={handleClick}>Request Estimate</Button>
                 </Box>
                 {json["success"] ?
                     resultsFound()

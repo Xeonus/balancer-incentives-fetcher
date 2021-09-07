@@ -1,5 +1,5 @@
 import React from 'react';
-import CountUp, { useCountUp } from 'react-countup';
+import CountUp from 'react-countup';
 
 export default function DynamicValueFormatter(props) {
     return (
@@ -7,7 +7,7 @@ export default function DynamicValueFormatter(props) {
             className={props.name} 
             start={0} 
             end={Number(props.value).toFixed(props.decimals)} 
-            duration={2} 
+            duration={1.75} 
             decimals={props.decimals} 
             separator="'">{Number(props.value).toFixed(props.decimals)}
         </CountUp>

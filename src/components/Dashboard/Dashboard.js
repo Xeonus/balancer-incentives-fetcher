@@ -11,6 +11,7 @@ import Typography from "@material-ui/core/Typography";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { PolygonQuery } from '../hoc/PolygonQuery';
 import { MainnetQuery } from '../hoc/MainnetQuery';
+import { ArbitrumTable } from '../IncentiveTables/ArbitrumTable';
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Footer from '../UI/Footer'
@@ -26,7 +27,6 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import ReactRoundedImage from "react-rounded-image";
 import PropTypes from 'prop-types';
@@ -76,7 +76,7 @@ export default function Dashboard(props) {
     //Default initialization. In the future replace with REDUX?
     const state = {
         coinData: [],
-        chainId: 'polygon'
+        chainId: 'ethereum'
 
     };
 
@@ -203,7 +203,7 @@ export default function Dashboard(props) {
             minWidth: 'auto',
         },
         tabTheme: {
-            background: 'linear-gradient(45deg, #1022d7 30%, #6a7cff 90%)',
+            background: 'linear-gradient(20deg, #1022d7 25%, #6a7cff 95%)',
             maxWidth:500,
             align: 'center',
             justifyContent: 'center',
@@ -242,8 +242,6 @@ export default function Dashboard(props) {
         //Update display
         setPolygon(!polygon);
     }
-
-    console.log("data", data)
 
     //Fetch Balancer Front-End Json containing incentives data:
     useEffect(() => {
@@ -290,7 +288,7 @@ export default function Dashboard(props) {
         <Grid item xs={12}>
             <Paper elevation={3} className={classes.paper}>
                 <Box p={1}>
-                    <Title>Coming soon! No incentives live yet!</Title>
+                <ArbitrumTable data={jsonData} coinData={data}></ArbitrumTable>
                 </Box>
             </Paper>
         </Grid>
@@ -355,7 +353,7 @@ export default function Dashboard(props) {
         <Grid item xs={12}>
             <Paper elevation={3} className={classes.paper}>
                 <Box p={1}>
-                    <RewardsEstimator isPolygon={chain === 'polygon'}></RewardsEstimator>
+                    <RewardsEstimator chainId={chain}></RewardsEstimator>
                 </Box>
             </Paper>
         </Grid>
@@ -459,10 +457,9 @@ export default function Dashboard(props) {
                             textColor="primary"
                             centered
                             className={classes.tabTheme}
-
                         >
                             <Tab label="Incentives" {...a11yProps(0)} />
-                            <Tab label="Rewards Estimation" {...a11yProps(1)} />
+                            <Tab label="Rewards" {...a11yProps(1)} />
                             <Tab label="Roadmap" {...a11yProps(2)} />
                         </Tabs>
                         <Box className={classes.titleBox}>

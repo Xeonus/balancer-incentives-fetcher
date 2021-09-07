@@ -14,7 +14,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Container from '@material-ui/core/Container';
-import DynamicValueFormatter from './DynamicValueFormatter';
+import DynamicValueFormatter from '../hoc/DynamicValueFormatter';
 import Tooltip from '@material-ui/core/Tooltip';
 import Latex from "react-latex-next";
 import "katex/dist/katex.min.css";
@@ -46,21 +46,18 @@ const useStyles = makeStyles((theme) => ({
     width: 1,
   },
   tooltip: {
-    maxWidth: "800",
-    fontSize: "1em",
-    textAlign: "center",
-    whiteSpace: 'normal',
-},
+      maxWidth: "800",
+      fontSize: "1em",
+      textAlign: "center",
+      whiteSpace: 'normal',
+  }
 }));
 
 //-------Refactor into HOC / REDUX--------
 
 //Token and Balancer infos:
-const qiId = '0x580a84c73811e1839f75d86d75d88cca0c241ff4';
-const mtaId = '0xF501dd45a1198C2E1b5aEF5314A68B9006D842E0';
-//const maticId = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270';
-const balId = '0x9a71012b13ca4d3d0cdc72a177df3ef03b0e76a3';
-const balancerUrl = 'https://polygon.balancer.fi/#/pool/';
+const balId = '0x040d1edc9569d4bab2d15287dc5a4f10f56a56b8';
+const balancerUrl = 'https://arbitrum.balancer.fi/#/pool/';
 
 //Descending comparator
 function descendingComparator(a, b, orderBy) {
@@ -98,22 +95,20 @@ const headCells = [
   { id: 'poolName', numeric: false, disablePadding: true, label: 'Pool' },
   { id: 'totalLiq', numeric: true, disablePadding: false, label: 'Total Liquidity ($)' },
   { id: 'bal', numeric: true, disablePadding: false, label: 'BAL' },
-  { id: 'qi', numeric: true, disablePadding: false, label: 'QI' },
-  { id: 'mta', numeric: true, disablePadding: false, label: 'MTA' },
   { id: 'apr', numeric: true, disablePadding: false, label: 'LM APR (%)' },
 ];
-
-const aprToolTip = 
-      "The liquidity mining annual percentage rate (APR) is calculated as the sum of all incentive APRs: <br /> <br />" +
-      "$" +
-      "\\frac{incentiveAmount \\times priceOfIncentive \\times 52 \\times 100}{totalLiquidity} " +
-      "$ <br /><br />"
 
 function EnhancedTableHead(props) {
   const { classes, order, orderBy, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
+
+const aprToolTip = 
+      "The liquidity mining annual percentage rate (APR) is calculated as the sum of all incentive APRs: <br /> <br />" +
+      "$" +
+      "\\frac{incentiveAmount \\times priceOfIncentive \\times 52 \\times 100}{totalLiquidity} " +
+      "$ <br /><br />"
 
   return (
     <TableHead>
@@ -154,13 +149,13 @@ EnhancedTableHead.propTypes = {
   orderBy: PropTypes.string.isRequired,
 };
 
-export function PolygonQuery(props) {
+export function ArbitrumTable(props) {
 
   let jsonData = { ...props.data };
 
   //Create data helper function:
-  function createData(poolName, hyperLink, totalLiq, bal, qi, mta, apr) {
-    return { poolName, hyperLink, totalLiq, bal, qi, mta, apr};
+  function createData(poolName, hyperLink, totalLiq, bal, apr) {
+    return { poolName, hyperLink, totalLiq, bal, apr};
   }
 
   
@@ -235,15 +230,14 @@ export function PolygonQuery(props) {
   }
 }
 
-//Get total worth
-const getTotalIncentivesWorth = (inputTable) => {
-  var totalWorthInUSD = 0;
-  inputTable.forEach((row) => {
-    totalWorthInUSD = totalWorthInUSD + row.bal * getPrice(props.coinData, 'balancer') + row.qi * getPrice(props.coinData, 'qi-dao') + row.mta * getPrice(props.coinData, 'meta');
-  });
-  return totalWorthInUSD;
-}
-
+  //Get total worth
+  const getTotalIncentivesWorth = (inputTable) => {
+    var totalWorthInUSD = 0;
+    inputTable.forEach((row) => {
+      totalWorthInUSD = totalWorthInUSD + row.bal * getPrice(props.coinData, 'balancer');
+    });
+    return totalWorthInUSD;
+  }
 
 
   //Create Table Array function
@@ -256,30 +250,18 @@ const getTotalIncentivesWorth = (inputTable) => {
       //TODO: Fix manual iteration, change through config and make it dynamic -> dependent on Table Head Cells
       let apr = 0
       let balAmount = 0
-      let qiAmount = 0
-      let mtaAmount = 0
       if (myJsonData.pools[id.toString()]) {
       myJsonData.pools[id.toString()].forEach((element) => {
         if (element.tokenAddress === balId) {
           balAmount = element.amount
           apr = apr + balAmount * getPrice(props.coinData, 'balancer') / totalLiquidity * 52 * 100
         } 
-        else if (element.tokenAddress === mtaId) {
-          mtaAmount = element.amount
-          apr = apr + mtaAmount * getPrice(props.coinData, 'meta') / totalLiquidity * 52 * 100
-        }
-        else if (element.tokenAddress === qiId) {
-          qiAmount = element.amount
-          apr = apr + qiAmount * getPrice(props.coinData, 'qi-dao') / totalLiquidity * 52 * 100
-        }
       });
       const tableEntry = createData(
         tokens.map(e => e.symbol).join('/'),
         balancerUrl.concat(id),
         Number(totalLiquidity),
         balAmount,
-        qiAmount,
-        mtaAmount,
         apr
       )
       tableRows.push(tableEntry);
@@ -288,13 +270,12 @@ const getTotalIncentivesWorth = (inputTable) => {
     return tableRows;
   };
 
-  //Polygon query
-  //TODOs: set in ENV variables / Redux:
+  //Arbitrum query
   const { loading, error, data } = useQuery(gql`
   {
-    balancers(first: 5) {
+    balancers(first: 500) {
       id
-      pools {
+      pools(first: 500) {
         totalLiquidity
         tokens {
           symbol
@@ -302,12 +283,16 @@ const getTotalIncentivesWorth = (inputTable) => {
         }
         id
       }
+      totalLiquidity
     }
   }
     `,
     {
-      context: { clientName: 'polygon' },
-
+      context: {
+          clientName: 'arbitrum',
+          uri: 'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-arbitrum-v2',
+         },
+      fetchPolicy: "no-cache",
     },
   );
 
@@ -326,12 +311,12 @@ const getTotalIncentivesWorth = (inputTable) => {
   );
 
   if (data !== null && jsonData !== null && jsonData[newestWeek] !== null) {
-    rows = createTableArrayFunction(data.balancers[0], jsonData[newestWeek][1]);
+    rows = createTableArrayFunction(data.balancers[0], jsonData[newestWeek][2]);
   };
 
   return (
     <div>
-     <Title>{`Polygon - Incentives of Week `}
+      <Title>{`Arbitrum - Incentives of Week `}
         {weekNumber} {` 
         `}
         ~$<DynamicValueFormatter value={getTotalIncentivesWorth(rows).toFixed(0)} name={'totalValue'} decimals={0}/></Title>
@@ -363,8 +348,6 @@ const getTotalIncentivesWorth = (inputTable) => {
                       <TableCell align="left"><Link href={row.hyperLink}>{row.poolName}</Link></TableCell>
                       <TableCell align="right"><DynamicValueFormatter value={Number(row.totalLiq).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
                       <TableCell align="right"><DynamicValueFormatter value={Number(row.bal).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
-                      <TableCell align="right">{row.qi === 0 ? '-' : <DynamicValueFormatter value={Number(row.qi).toFixed(0)} name={row.poolName} decimals={0}/>}</TableCell>
-                      <TableCell align="right">{row.mta === 0 ? '-' : <DynamicValueFormatter value={Number(row.mta).toFixed(0)} name={row.poolName} decimals={0}/>}</TableCell>
                       <TableCell align="right">{row.apr === 0 ? '-' : <DynamicValueFormatter value={Number(row.apr).toFixed(2)} name={row.poolName} decimals={2}/>}</TableCell>
                     </TableRow>
                   );
