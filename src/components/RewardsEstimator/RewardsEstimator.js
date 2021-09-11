@@ -13,6 +13,7 @@ import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Box from '@material-ui/core/Box';
+import DynamicValueFormatter from './../hoc/DynamicValueFormatter';
 
 
 //Styling config:
@@ -68,7 +69,7 @@ export function RewardsEstimator(props) {
     //-------Refactor into HOC / REDUX--------
 
     //Token and Balancer infos:
-    const maticTokenIDs = [
+    const tokenIDs = [
         {
             token_address: '0x580a84c73811e1839f75d86d75d88cca0c241ff4',
             token_name: 'QI',
@@ -105,25 +106,24 @@ export function RewardsEstimator(props) {
 
     const baseUrl = "https://api.balancer.finance/liquidity-mining/v1/liquidity-provider-multitoken";
 
-    //Number formatting
-    function numberWithCommas(x) {
-        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
-    }
 
+    //Create rewards table data
     const mapRewardsData = (jsonData) => {
         let rewardsData = []
         const data = jsonData["result"]["liquidity-providers"];
         data.forEach(({ chain_id, current_estimate, token_address, velocity }) => {
-            maticTokenIDs.forEach(element => {
+            tokenIDs.forEach(element => {
                 if (chain_id === chainId) {
                     if (token_address === element.token_address) {
                         if (Number(velocity) !== 0) {
+                            var estWeekly =  velocity * 604800
                             rewardsData.push(
                                 createData(
                                     element.token_name,
-                                    numberWithCommas(Number(current_estimate).toFixed(2)),
-                                    Number(velocity).toFixed(8),
-                                    Number(velocity * 604800).toFixed(2)
+                                    <DynamicValueFormatter value={Number(current_estimate).toFixed(2)} name={'current_estimate'} decimals={2}/>,
+                                    <DynamicValueFormatter value={Number(velocity).toFixed(8)} name={'velocity'} decimals={8}/>,
+                                    //<DynamicValueFormatter value={estWeekly} name={'estWeekly'} decimals={3}/>
+                                    <DynamicValueFormatter value={estWeekly} name={'weeklyEstimate'} decimals={3}/>
                                 ));
                         }
                     }
@@ -197,7 +197,7 @@ export function RewardsEstimator(props) {
         };
 
     const resultsFound = () => (
-        mapRewardsData(json, maticTokenIDs).length === 0 ?
+        mapRewardsData(json, tokenIDs).length === 0 ?
             <Grid item xs={12}>
                 <Box p={1}>
                     <Typography noWrap={false} variant="body1" color="textSecondary" component="span"><b>No estimates for this chain found!</b></Typography>
@@ -217,7 +217,7 @@ export function RewardsEstimator(props) {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {mapRewardsData(json, maticTokenIDs).map((row) => (
+                            {mapRewardsData(json, tokenIDs).map((row) => (
                                 <TableRow key={row.tokenName} >
                                     <TableCell align="left">{row.tokenName}</TableCell>
                                     <TableCell align="right">{row.amount}</TableCell>

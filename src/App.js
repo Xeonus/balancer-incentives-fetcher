@@ -6,7 +6,7 @@ import {
   ApolloProvider,
 } from "@apollo/client";
 import { RetryLink } from 'apollo-link-retry';
-import { from, HttpLink } from '@apollo/client';
+import { HttpLink } from '@apollo/client';
 //Init firebase statistics:
 import firebase from './config/firebase';
 

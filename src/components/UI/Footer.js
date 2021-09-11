@@ -20,12 +20,12 @@ export default function Footer() {
 
                 <Grid>
                     <Typography noWrap={false} variant="caption" color="textSecondary" component="span">
-                        Donate:
+                        Donate: 
                         <Link color="inherit" href="https://etherscan.io/address/0xf9e0dE629DE67eC90FBe095d2e6843f6A76aeEc2" target="_blank">
                             0xf9e0dE629DE67eC90FBe095d2e6843f6A76aeEc2
                         </Link> <br />
                         Information provided as is. Not financial advice. <br />
-                        Beta Build - v0.5.2 
+                        Beta Build - v0.5.4 
                     </Typography>
                 </Grid>
         </div>

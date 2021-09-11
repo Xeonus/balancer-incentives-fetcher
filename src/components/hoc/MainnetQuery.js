@@ -270,6 +270,8 @@ export function MainnetQuery(props) {
     inputTable.forEach((row) => {
       totalWorthInUSD = totalWorthInUSD + row.bal * getPrice(props.coinData, 'balancer') + row.ldo * getPrice(props.coinData, 'lido-dao');
     });
+    //Special case: AAVE allocation for ETH Mainnet: 12500 BAL
+    totalWorthInUSD = totalWorthInUSD + 12500 * getPrice(props.coinData, 'balancer');
     return totalWorthInUSD;
   }
 

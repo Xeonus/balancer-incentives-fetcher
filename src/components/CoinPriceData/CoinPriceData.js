@@ -28,10 +28,7 @@ const styles = theme => ({
   },
 });
 
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
-}
-
+//Coin data fetcher implemented as class without hooks:
 class CoinPriceData extends Component {
 
   //Obsolete constructor
@@ -46,7 +43,6 @@ class CoinPriceData extends Component {
 
     };
   };
-  
   
 
   //Fetch coin price data
@@ -69,6 +65,7 @@ class CoinPriceData extends Component {
     }
     );
   }
+
   componentDidMount() {
     //Set interval for automatic refresh
     this.mounted = true;
@@ -80,17 +77,9 @@ class CoinPriceData extends Component {
       }
     },60000);
 
-    //Update data here as a test:
+    //Update state
     if (this.state.coinData !== null && this.state.coinData !== this.props.coinData) {
-      //Update important components:
-      //this.setState ({
-       // damPrice : this.state.coinData[1].current_price,
-        //fluxPrice : this.state.coinData[2].current_price,
-      //});
       this.props.data.coinData = this.state.coinData;
-      //Map dam- and flux-prices:
-      //this.props.data.damPrice = this.state.coinData[1].current_price;
-      //this.props.data.fluxPrice = this.state.coinData[2].current_price;
       }
   }
 
@@ -127,11 +116,6 @@ class CoinPriceData extends Component {
     if (this.state.coinData[2].current_price !== null) {
       //Map props to data:
       this.props.data.coinData = this.state.coinData;
-      //Map dam- and flux-prices:
-      //this.props.data.damPrice = this.state.coinData[1].current_price;
-      //this.props.data.fluxPrice = this.state.coinData[2].current_price;
-      //useEffect(() => { this.props.data.damPrice = this.state.coinData[1].current_price}, []);
-      //Only initialize data when it has been fully mounted before render
       const rows = [
       ];
 

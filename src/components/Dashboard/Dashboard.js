@@ -1,7 +1,7 @@
 import Title from './../UI/Title';
 import Header from '../UI/Header';
 import Container from "@material-ui/core/Container";
-import { Box, Switch } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import BgImage from './../resources/bg-header.svg';
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
@@ -31,6 +31,9 @@ import MenuItem from '@material-ui/core/MenuItem';
 import ReactRoundedImage from "react-rounded-image";
 import PropTypes from 'prop-types';
 import Roadmap from '../UI/Roadmap';
+//import IncentiveCharts from './../IncentiveTables/IncentiveCharts/IncentiveCharts';
+import ClaimInfo from '../Rewards/ClaimInfo';
+import RewardsInfo from '../Rewards/RewardsInfo';
 
 
 
@@ -204,11 +207,11 @@ export default function Dashboard(props) {
         },
         tabTheme: {
             background: 'linear-gradient(20deg, #1022d7 25%, #6a7cff 95%)',
-            maxWidth:500,
+            maxWidth: 500,
             align: 'center',
             justifyContent: 'center',
-            borderRadius:3
-         },
+            borderRadius: 3
+        },
     }));
 
     const classes = useStyles();
@@ -222,11 +225,6 @@ export default function Dashboard(props) {
     const onchange = (data) => {
         setData(data)
     }
-    // const state = {
-    //     newestWeek: '60',
-    //     weekNumber: 'week_60',
-    //     jsonData: [],
-    // };
 
     const handleFormChange = (event) => {
         const name = event.target.name;
@@ -235,13 +233,6 @@ export default function Dashboard(props) {
             [name]: event.target.value,
         });
     };
-
-
-
-    const handleThemeChange = () => {
-        //Update display
-        setPolygon(!polygon);
-    }
 
     //Fetch Balancer Front-End Json containing incentives data:
     useEffect(() => {
@@ -259,7 +250,7 @@ export default function Dashboard(props) {
         };
 
         fetchData();
-    }, [loading]);
+    }, [setLoading]);
 
     //Polygon Table
     const showPolygon = () => (
@@ -288,7 +279,7 @@ export default function Dashboard(props) {
         <Grid item xs={12}>
             <Paper elevation={3} className={classes.paper}>
                 <Box p={1}>
-                <ArbitrumTable data={jsonData} coinData={data}></ArbitrumTable>
+                    <ArbitrumTable data={jsonData} coinData={data}></ArbitrumTable>
                 </Box>
             </Paper>
         </Grid>
@@ -320,15 +311,15 @@ export default function Dashboard(props) {
                 return (
                     <Header className={classes.title}  >{
                         `
-                            Rewards Estimation and Calculation
+                            Rewards Estimation
                             `}
                     </Header>
                 )
-                case 2:
+            case 2:
                 return (
                     <Header className={classes.title}  >{
                         `
-                            Balancer Tools Development Roadmap
+                            Development Roadmap
                             `}
                     </Header>
                 )
@@ -354,6 +345,29 @@ export default function Dashboard(props) {
             <Paper elevation={3} className={classes.paper}>
                 <Box p={1}>
                     <RewardsEstimator chainId={chain}></RewardsEstimator>
+                </Box>
+            </Paper>
+        </Grid>
+
+    );
+
+    //Information about where to claim tokens
+    const showClaimingInfo = (chain) => (
+        <Grid item xs={12}>
+            <Paper elevation={3} className={classes.paper}>
+                <Box p={1}>
+                    <ClaimInfo chainId={chain}></ClaimInfo>
+                </Box>
+            </Paper>
+        </Grid>
+    );
+
+    //Information about liquidity mining
+    const showLMInfo = () => (
+        <Grid item xs={12}>
+            <Paper elevation={3} className={classes.paper}>
+                <Box p={1}>
+                    <RewardsInfo></RewardsInfo>
                 </Box>
             </Paper>
         </Grid>
@@ -450,21 +464,21 @@ export default function Dashboard(props) {
                     </Toolbar>
                     <Box className={classes.backDrop}>
                         <Box mx="auto" align="center">
-                        <Tabs
-                            value={value}
-                            onChange={handleChange}
-                            indicatorColor="primary"
-                            textColor="primary"
-                            centered
-                            className={classes.tabTheme}
-                        >
-                            <Tab label="Incentives" {...a11yProps(0)} />
-                            <Tab label="Rewards" {...a11yProps(1)} />
-                            <Tab label="Roadmap" {...a11yProps(2)} />
-                        </Tabs>
-                        <Box className={classes.titleBox}>
-                            {headerSwitch(value)}
-                        </Box>
+                            <Tabs
+                                value={value}
+                                onChange={handleChange}
+                                indicatorColor="primary"
+                                textColor="primary"
+                                centered
+                                className={classes.tabTheme}
+                            >
+                                <Tab label="Incentives" {...a11yProps(0)} />
+                                <Tab label="Rewards" {...a11yProps(1)} />
+                                <Tab label="Roadmap" {...a11yProps(2)} />
+                            </Tabs>
+                            <Box className={classes.titleBox}>
+                                {headerSwitch(value)}
+                            </Box>
                         </Box>
                     </Box>
                 </AppBar>
@@ -491,6 +505,8 @@ export default function Dashboard(props) {
                     <TabPanel value={value} index={1}>
                         <Grid container className={classes.root} spacing={2} component="span" >
                             {showRewardsEstimator(data.chainId)}
+                            {showClaimingInfo(data.chainId)}
+                            {showLMInfo()}
                             <Grid item xs={12} component="span">
                                 <Paper elevation={3} className={classes.paper}>
                                     <Footer className={classes.footer}></Footer>
