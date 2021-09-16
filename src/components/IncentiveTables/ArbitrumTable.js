@@ -246,7 +246,7 @@ export function ArbitrumTable(props) {
   //[amt of tokens distributed weekly] * [price of token] / [total liquidity] * 52
   const createTableArrayFunction = (queryData, myJsonData) => {
     const tableRows = [];
-    queryData.pools.forEach(({ id, tokens, totalLiquidity}) => {
+    queryData.pools.forEach(({ id, tokens, totalLiquidity, poolType}) => {
       //TODO: Fix manual iteration, change through config and make it dynamic -> dependent on Table Head Cells
       let apr = 0
       let balAmount = 0
@@ -264,6 +264,10 @@ export function ArbitrumTable(props) {
         balAmount,
         apr
       )
+      if (poolType === "Weighted") {
+        const ratios = " (" + tokens.map(e => Number(e.weight * 100).toFixed(0)).join('/') + ")";
+        tableEntry.poolName = tableEntry.poolName + ratios;
+        }
       tableRows.push(tableEntry);
     }
     });
@@ -277,9 +281,11 @@ export function ArbitrumTable(props) {
       id
       pools(first: 500) {
         totalLiquidity
+        poolType
         tokens {
           symbol
           id
+          weight
         }
         id
       }

@@ -252,7 +252,7 @@ const getTotalIncentivesWorth = (inputTable) => {
   //[amt of tokens distributed weekly] * [price of token] / [total liquidity] * 52
   const createTableArrayFunction = (queryData, myJsonData) => {
     const tableRows = [];
-    queryData.pools.forEach(({ id, tokens, totalLiquidity}) => {
+    queryData.pools.forEach(({ id, tokens, totalLiquidity, poolType}) => {
       //TODO: Fix manual iteration, change through config and make it dynamic -> dependent on Table Head Cells
       let apr = 0
       let balAmount = 0
@@ -282,6 +282,10 @@ const getTotalIncentivesWorth = (inputTable) => {
         mtaAmount,
         apr
       )
+      if (poolType === "Weighted") {
+        const ratios = " (" + tokens.map(e => Number(e.weight * 100).toFixed(0)).join('/') + ")";
+        tableEntry.poolName = tableEntry.poolName + ratios;
+        }
       tableRows.push(tableEntry);
     }
     });
@@ -292,16 +296,19 @@ const getTotalIncentivesWorth = (inputTable) => {
   //TODOs: set in ENV variables / Redux:
   const { loading, error, data } = useQuery(gql`
   {
-    balancers(first: 5) {
+    balancers(first: 500) {
       id
-      pools {
+      pools(first: 500) {
         totalLiquidity
+        poolType
         tokens {
           symbol
           id
+          weight
         }
         id
       }
+      totalLiquidity
     }
   }
     `,

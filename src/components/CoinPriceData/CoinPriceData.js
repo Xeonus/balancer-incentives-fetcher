@@ -9,6 +9,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Container from '@material-ui/core/Container';
 import Paper from '@material-ui/core/Paper';
 import DynamicValueFormatter from "../hoc/DynamicValueFormatter";
+import Title from "../UI/Title";
 
 
 const styles = theme => ({
@@ -47,7 +48,7 @@ class CoinPriceData extends Component {
 
   //Fetch coin price data
   async fetchData() {
-    const url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=balancer%2Cmeta%2Cqi-dao%2Cmatic-network%2Clido-dao%2Cethereum&order=market_cap_desc&per_page=100&page=1&sparkline=false%22";
+    const url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=balancer%2Cmeta%2Cqi-dao%2Clido-dao%2Cvitadao%2Cethereum&order=market_cap_desc&per_page=100&page=1&sparkline=false%22";
     const response = await fetch(url);
     const json = await response.json();
     const coinData = json;
@@ -119,12 +120,14 @@ class CoinPriceData extends Component {
       const rows = [
       ];
 
-      for (var i = 0; i <= 4; i++) {
+      //console.log("this.state.coinData lenght", Object.keys(this.state.coinData).length);
+      for (var i = 0; i <= 5; i++) {
         const dataEntry = createData(this.state.coinData[i].symbol.toUpperCase(), this.state.coinData[i].current_price, this.state.coinData[i].ath, this.state.coinData[i].atl, this.state.coinData[i].market_cap);
         rows.push(dataEntry);
       }
       return (
         <div>
+          <Title>Tokenomics</Title>
         <Container fixed>
         <Paper className={classes.paper} elevation={3}>
           <Table className={classes.table} size="small" aria-label="a dense table">

@@ -30,10 +30,8 @@ const client = new ApolloClient({
     return (
       <div key='dashboard'>
         <ApolloProvider client={client}>
-        <Dashboard></Dashboard>
-
+        <Dashboard/>
         </ApolloProvider>
-        
       
       </div>
     );

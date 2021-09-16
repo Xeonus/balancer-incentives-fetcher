@@ -31,7 +31,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import ReactRoundedImage from "react-rounded-image";
 import PropTypes from 'prop-types';
 import Roadmap from '../UI/Roadmap';
-//import IncentiveCharts from './../IncentiveTables/IncentiveCharts/IncentiveCharts';
+import IncentiveCharts from './../IncentiveTables/IncentiveCharts/IncentiveCharts';
 import ClaimInfo from '../Rewards/ClaimInfo';
 import RewardsInfo from '../Rewards/RewardsInfo';
 
@@ -50,7 +50,7 @@ function TabPanel(props) {
         >
             {value === index && (
                 <Box>
-                    <Typography component="span">{children}</Typography>
+                    <Typography key={index} component="span">{children}</Typography>
                 </Box>
             )}
         </div>
@@ -254,7 +254,7 @@ export default function Dashboard(props) {
 
     //Polygon Table
     const showPolygon = () => (
-        <Grid item="true" xs={12}>
+        <Grid item xs={12}>
             <Paper elevation={3} className={classes.paper}>
                 <Box p={1}>
                     <PolygonQuery data={jsonData} coinData={data} ></PolygonQuery>
@@ -328,7 +328,7 @@ export default function Dashboard(props) {
 
 
 
-    //Coin-price data
+    //Coin-price data: Need to fix class component child behavior in Grid
     const showPriceData = () => (
         <Grid item xs={12}>
             <Paper elevation={3} className={classes.paper}>
@@ -342,11 +342,19 @@ export default function Dashboard(props) {
     //Rewards fetcher
     const showRewardsEstimator = (chain) => (
         <Grid item xs={12}>
+            {chain === 'arbitrum' ? 
+            <Paper elevation={3} className={classes.paper}>
+            <Box p={1}>
+           <Typography color="primary">Arbitrum Reward estimates have been temporarily disabled. Your BAL rewards are not affected and you will continue to earn as normal.</Typography>
+           </Box>
+           </Paper>
+           :
             <Paper elevation={3} className={classes.paper}>
                 <Box p={1}>
                     <RewardsEstimator chainId={chain}></RewardsEstimator>
                 </Box>
             </Paper>
+    }
         </Grid>
 
     );
@@ -384,7 +392,7 @@ export default function Dashboard(props) {
             </div>);
     }
     if (data == null) {
-        return (<Typography noWrap={false} variant="caption" color="textSecondary" component="span">Error while fetching Balancer Incentive data :(</Typography>)
+        return (<Typography key="error" noWrap={false} variant="caption" color="textSecondary" component="span">Error while fetching Balancer Incentive data :(</Typography>)
     }
 
     return (
@@ -397,14 +405,14 @@ export default function Dashboard(props) {
                                 <img src={BalancerLogo} alt="Balancer Logo" width="30" />
                             </Box>
                             <Box mr={2}>
-                                <Typography variant="h6" className={classes.root}>
+                                <Typography variant="h6" className={classes.root} key="appTitle">
                                     Balancer Tools
                                 </Typography>
                             </Box>
                             <FormControl variant="outlined" size="small" className={classes.formControl}>
                                 <Select
                                     labelId="demo-simple-select-label"
-                                    id="demo-simple-select"
+                                    id="chainSelect"
                                     value={data.chainId}
                                     onChange={handleFormChange}
                                     inputProps={{
@@ -412,7 +420,7 @@ export default function Dashboard(props) {
                                         id: 'chainId-native-simple',
                                     }}
                                 >
-                                    <MenuItem value={'ethereum'}>
+                                    <MenuItem value={'ethereum'} key="eth">
                                         <Box display="flex" alignItems="center">
                                             <Box mr={0.5}>
                                                 <ReactRoundedImage
@@ -427,7 +435,7 @@ export default function Dashboard(props) {
                                             </Box>
                                         </Box>
                                     </MenuItem>
-                                    <MenuItem value={'polygon'}>
+                                    <MenuItem value={'polygon'} key="poly">
                                         <Box display="flex" alignItems="center">
                                             <Box mr={0.5}>
                                                 <ReactRoundedImage
@@ -442,7 +450,7 @@ export default function Dashboard(props) {
                                             </Box>
                                         </Box>
                                     </MenuItem>
-                                    <MenuItem value={'arbitrum'}>
+                                    <MenuItem value={'arbitrum'} key="arb">
                                         <Box display="flex" alignItems="center">
                                             <Box mr={0.5}>
                                                 <ReactRoundedImage
@@ -488,11 +496,10 @@ export default function Dashboard(props) {
                         <Grid container className={classes.root} spacing={2} component="span" >
                             <Grid item xs={12} component="span">
                                 <Paper elevation={3} className={classes.paper}>
-                                    <Title>Tokenomics</Title>
                                     <CoinPriceData data={data} onchange={(e) => { onchange(e) }} />
                                 </Paper>
                             </Grid>
-                            {showPriceData}
+                            <showPriceData/>
                             {renderSwitch(data.chainId)}
 
                             <Grid item xs={12} component="span">

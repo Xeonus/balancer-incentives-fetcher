@@ -15,6 +15,7 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Container from '@material-ui/core/Container';
 import DynamicValueFormatter from './DynamicValueFormatter';
+import IncentiveCharts from '../IncentiveTables/IncentiveCharts/IncentiveCharts';
 import Tooltip from '@material-ui/core/Tooltip';
 import Latex from "react-latex-next";
 import "katex/dist/katex.min.css";
@@ -57,6 +58,7 @@ const useStyles = makeStyles((theme) => ({
 const balancerUrl = 'https://app.balancer.fi/#/pool/';
 const lidoId = '0x5a98fcbea516cf06857215779fd812ca3bef1b32';
 const balId = '0xba100000625a3754423978a60c9317c58a424e3d';
+const vitaId = '0x81f8f0bb1cb2a06649e51913a151f0e7ef6fa321';
 
 //-------Refactor into HOC / REDUX--------
 
@@ -96,7 +98,8 @@ const headCells = [
   { id: 'poolName', numeric: false, disablePadding: true, label: 'Pool' },
   { id: 'totalLiq', numeric: true, disablePadding: false, label: 'Total Liquidity ($)' },
   { id: 'bal', numeric: true, disablePadding: false, label: 'BAL' },
-  { id: 'lidoAmount', numeric: true, disablePadding: false, label: 'LDO' },
+  { id: 'ldo', numeric: true, disablePadding: false, label: 'LDO' },
+  { id: 'vita', numeric: true, disablePadding: false, label: 'VITA' },
   { id: 'apr', numeric: true, disablePadding: false, label: 'LM APR (%)' },
 ];
 
@@ -156,8 +159,8 @@ export function MainnetQuery(props) {
 
   const jsonData = { ...props.data };
 
-  function createData(poolName, hyperLink, totalLiq,  bal, ldo, apr) {
-    return { poolName, hyperLink, totalLiq, bal, ldo, apr};
+  function createData(poolName, hyperLink, totalLiq,  bal, ldo, vita, apr) {
+    return { poolName, hyperLink, totalLiq, bal, ldo, vita, apr};
   }
 
   let rows = [];
@@ -234,10 +237,11 @@ export function MainnetQuery(props) {
   //Create incentives table
   const createTableArrayFunction = (queryData, myJsonData) => {
     const tableRows = [];
-    queryData.pools.forEach(({ id, tokens, totalLiquidity}) => {
+    queryData.pools.forEach(({ id, tokens, totalLiquidity, poolType}) => {
       //TODO: Fix manual iteration, change through config and make it dynamic -> dependent on Table Head Cells
       let balAmount = 0
       let lidoAmount = 0
+      let vitaAmount = 0
       let apr = 0
       if (myJsonData.pools[id.toString()]) {
       myJsonData.pools[id.toString()].forEach((element) => {
@@ -249,6 +253,10 @@ export function MainnetQuery(props) {
           lidoAmount = element.amount
           apr = apr + lidoAmount * getPrice(props.coinData, 'lido-dao') / totalLiquidity * 52 * 100
         }
+        else if (element.tokenAddress === vitaId) {
+          vitaAmount = element.amount
+          apr = apr + vitaAmount * getPrice(props.coinData, 'vitadao') / totalLiquidity * 52 * 100
+        }
       });
       const tableEntry = createData(
         tokens.map(e => e.symbol ? e.symbol : "MKR").join('/'),
@@ -256,8 +264,13 @@ export function MainnetQuery(props) {
         Number(totalLiquidity),
         balAmount,
         lidoAmount,
+        vitaAmount,
         apr
       )
+      if (poolType === "Weighted") {
+      const ratios = " (" + tokens.map(e => Number(e.weight * 100).toFixed(0)).join('/') + ")";
+      tableEntry.poolName = tableEntry.poolName + ratios;
+      }
       tableRows.push(tableEntry);
     }
     });
@@ -268,7 +281,8 @@ export function MainnetQuery(props) {
   const getTotalIncentivesWorth = (inputTable) => {
     var totalWorthInUSD = 0;
     inputTable.forEach((row) => {
-      totalWorthInUSD = totalWorthInUSD + row.bal * getPrice(props.coinData, 'balancer') + row.ldo * getPrice(props.coinData, 'lido-dao');
+      totalWorthInUSD = totalWorthInUSD + row.bal * getPrice(props.coinData, 'balancer') + row.ldo * getPrice(props.coinData, 'lido-dao') + row.vita * getPrice(props.coinData, 'vitadao');
+
     });
     //Special case: AAVE allocation for ETH Mainnet: 12500 BAL
     totalWorthInUSD = totalWorthInUSD + 12500 * getPrice(props.coinData, 'balancer');
@@ -282,9 +296,11 @@ export function MainnetQuery(props) {
       id
       pools(first: 500) {
         totalLiquidity
+        poolType
         tokens {
           symbol
           id
+          weight
         }
         id
       }
@@ -297,7 +313,6 @@ export function MainnetQuery(props) {
       fetchPolicy: "no-cache",
     },
   );
-
 
   //If data is not fully loaded, display progress
   if (loading || jsonData[newestWeek] === null) return (
@@ -320,8 +335,8 @@ export function MainnetQuery(props) {
         {weekNumber} {` 
         `}
         ~$<DynamicValueFormatter value={getTotalIncentivesWorth(rows).toFixed(0)} name={'totalValue'} decimals={0}/></Title>
-      <Container className={classes.paper} fixed>
-        <Paper  elevation={3}>
+      <Container fixed>
+        <Paper  className={classes.paper} elevation={3}>
           <Table className={classes.table} size="small" aria-label="a dense table">
           <EnhancedTableHead
               classes={classes}
@@ -349,6 +364,7 @@ export function MainnetQuery(props) {
                       <TableCell align="right"><DynamicValueFormatter value={Number(row.totalLiq).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
                       <TableCell align="right"><DynamicValueFormatter value={Number(row.bal).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
                       <TableCell align="right">{row.ldo === 0 ? '-' : <DynamicValueFormatter value={Number(row.ldo).toFixed(0)} name={row.poolName} decimals={0}/>}</TableCell>
+                      <TableCell align="right">{row.vita === 0 ? '-' : <DynamicValueFormatter value={Number(row.vita).toFixed(0)} name={row.poolName} decimals={0}/>}</TableCell>
                       <TableCell align="right">{row.apr === 0 ? '-' : <DynamicValueFormatter value={Number(row.apr).toFixed(2)} name={row.poolName} decimals={2}/>}</TableCell>
                     </TableRow>
                   );
@@ -356,6 +372,9 @@ export function MainnetQuery(props) {
             </TableBody>
           </Table>
         </Paper>
+        {/*<Paper  className={classes.paper} elevation={3}>
+        <IncentiveCharts rows={rows}></IncentiveCharts>
+              </Paper> */}
       </Container>
     </div>
 

@@ -93,6 +93,10 @@ export function RewardsEstimator(props) {
         {
             token_address: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
             token_name: 'MATIC',
+        },
+        {
+            token_address: '0x81f8f0bb1cb2a06649e51913a151f0e7ef6fa321',
+            token_name: 'VITA',
         }
     ]
 
@@ -234,7 +238,7 @@ export function RewardsEstimator(props) {
     return (
         <div>
             {titleSwitch(props.chainId)}
-            <Container fixed justifyContent="center" alignItems="center">
+            <Container fixed alignItems="center">
                 <Box className={classes.alignItemsAndJustifyContent}>
                     <TextField
                         id="outlined-basic"

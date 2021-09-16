@@ -48,28 +48,34 @@ const claimingInfo = [
         claimLocation: "https://claim-lido.balancer.fi/#/"
     },
     {
+        tokenName: "VITA",
+        chain: "ETH Mainnet",
+        chainId: "ethereum",
+        claimLocation: "To be determined"
+    },
+    {
         tokenName: "BAL",
         chain: "Polygon",
         chainId: "polygon",
-        claimLocation: "Airdrop around Wednesday"
+        claimLocation: "Airdrop around Tue-Wed"
     },
     {
         tokenName: "QI",
         chain: "Polygon",
         chainId: "polygon",
-        claimLocation: "Airdrop around Wednesday"
+        claimLocation: "Airdrop around Wed-Thu"
     },
     {
         tokenName: "MTA",
         chain: "Polygon",
         chainId: "polygon",
-        claimLocation: "Airdrop around Wednesday"
+        claimLocation: "Airdrop around Wed"
     },
     {
         tokenName: "BAL",
         chain: "Aribitrum",
         chainId: "arbitrum",
-        claimLocation: "To be determined"
+        claimLocation: "https://claim-arbitrum.balancer.fi/"
     }
 ];
 
@@ -107,7 +113,7 @@ export default function ClaimInfo(props) {
         <div>
             {titleSwitch(props.chainId)}
             <Container className={classes.paper} fixed>
-                <Typography component={'div'} color="primary" align="left">
+                <Typography component={'div'} color="primary" align="left" key="rewardsExplanation">
                     On Balancer, rewards are distributed through different mechanics, depending on which chain you provide liquidity.
                     Below you find an overview of the different claiming locations (depending on the chain you chose):
                     <br></br>
@@ -127,7 +133,7 @@ export default function ClaimInfo(props) {
                                 <TableRow key={row.tokenName} >
                                     <TableCell align="left">{row.tokenName}</TableCell>
                                     <TableCell align="right">{row.chain}</TableCell>
-                                    {props.chainId === 'ethereum' ? 
+                                    {props.chainId === 'ethereum' || props.chainId === 'arbitrum' ? 
                                     <TableCell align="right"><Link href={row.claimLocation}>{row.claimLocation}</Link></TableCell> 
                                     : 
                                     <TableCell align="right">{row.claimLocation}</TableCell> 

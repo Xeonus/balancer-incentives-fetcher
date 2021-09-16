@@ -1,49 +1,93 @@
 import React, { PureComponent } from 'react';
-import { PieChart, Pie, Sector, Cell, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Tooltip, Cell, ResponsiveContainer } from 'recharts';
+import Title from '../../UI/Title';
 
-const data = [
-  { name: 'Group A', value: 400 },
-  { name: 'Group B', value: 300 },
-  { name: 'Group C', value: 300 },
-  { name: 'Group D', value: 200 },
-];
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
+
+
+export default function IncentiveCharts(props) {
+
+
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 const RADIAN = Math.PI / 180;
-const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
-  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+const renderCustomizedLabel = ({ 
+  cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+  const radius = 25 + innerRadius + (outerRadius - innerRadius);
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
   return (
     <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
-      {`${(percent * 100).toFixed(0)}%`}
+      {data[index].name} : {data[index].value}
     </text>
   );
 };
 
-export default class IncentiveCharts extends PureComponent {
+const renderCustomizedLabelAlterantive = ({
+  cx, cy, midAngle, innerRadius, outerRadius, value, startAngle, endAngle, index}) => {
+  const RADIAN = Math.PI / 180;
+  const diffAngle = endAngle - startAngle;
+  const delta = ((360-diffAngle)/25)-1;
+  const radius = innerRadius + (outerRadius - innerRadius);
+  const x = cx + (radius+delta) * Math.cos(-midAngle * RADIAN);
+  const y = cy + (radius+(delta*delta)) * Math.sin(-midAngle * RADIAN);
+  return (
+    <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontWeight="normal">
+      {data[index].name} : {data[index].value}
+    </text>
+  );
+};
 
-    constructor(props) {
-        super(props);
-      };
+function renderCustomizedLabelLine(props){
+  let { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle } = props;
+  const RADIAN = Math.PI / 180;
+  const diffAngle = endAngle - startAngle;
+  const radius = innerRadius + (outerRadius - innerRadius);
+  let path='';
+  for(let i=0;i<((360-diffAngle)/25);i++){
+    path += `${(cx + (radius+i) * Math.cos(-midAngle * RADIAN))},${(cy + (radius+i*i) * Math.sin(-midAngle * RADIAN))} `
+  }
+  return (
+    <polyline points={path} stroke="white" fill="none" />
+  );
+}
 
 
-      
-      
-  render() {
+let renderLabel = function(entry) {
+  return entry.name ;
+}
 
-    console.log("props", this.props)
+
+      const data = [
+        { name: 'BAL', value: 104000 },
+        { name: 'LDO', value: 25000 },
+        { name: 'VITA', value: 150 },
+      ];
+
+
+
+
+
+      console.log("props", props)
+
+      const rows = [];
+
+
+
+
     return (
+      <div>
+        <Title>Incentive Allocation Distribution</Title>
         <PieChart width={400} height={400}>
           <Pie
             data={data}
             cx="50%"
             cy="50%"
-            labelLine={false}
             label={renderCustomizedLabel}
-            outerRadius={80}
+            //</PieChart>labelLine={renderCustomizedLabelLine}
+            outerRadius={90}
             fill="#8884d8"
             dataKey="value"
           >
@@ -51,7 +95,8 @@ export default class IncentiveCharts extends PureComponent {
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
+          <Tooltip />
         </PieChart>
+        </div>
     );
-  }
 }
