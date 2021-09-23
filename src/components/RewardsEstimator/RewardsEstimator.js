@@ -49,12 +49,15 @@ const useStyles = makeStyles((theme) => ({
     },
     button: {
         background: 'linear-gradient(15deg, #384aff 10%, #f21bf6 95%)',
+        '&:hover': {
+            background: 'linear-gradient(20deg, #384aff 10%, #f21bf6 60%)',
+          },
         border: 0,
         borderRadius: 3,
         boxShadow: '0 3px 5px 2px rgba(56,74,255, .5)',
         color: 'white',
         height: 40,
-        padding: '0 30px',
+        padding: '0 10px',
       },
 }));
 
@@ -97,8 +100,18 @@ export function RewardsEstimator(props) {
         {
             token_address: '0x81f8f0bb1cb2a06649e51913a151f0e7ef6fa321',
             token_name: 'VITA',
+        },
+        {
+            token_address: '0x5a98fcbea516cf06857215779fd812ca3bef1b32',
+            token_name: 'LDO',
+        },
+        {
+            token_address: '0x4e352cf164e64adcbad318c3a1e222e9eba4ce42',
+            token_name: 'MCB',
         }
     ]
+
+    
 
     //ChainId ETH is default:
     let chainId = 1;

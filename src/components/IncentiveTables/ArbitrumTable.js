@@ -57,6 +57,7 @@ const useStyles = makeStyles((theme) => ({
 
 //Token and Balancer infos:
 const balId = '0x040d1edc9569d4bab2d15287dc5a4f10f56a56b8';
+const mcbId = '0x4e352cf164e64adcbad318c3a1e222e9eba4ce42';
 const balancerUrl = 'https://arbitrum.balancer.fi/#/pool/';
 
 //Descending comparator
@@ -95,6 +96,7 @@ const headCells = [
   { id: 'poolName', numeric: false, disablePadding: true, label: 'Pool' },
   { id: 'totalLiq', numeric: true, disablePadding: false, label: 'Total Liquidity ($)' },
   { id: 'bal', numeric: true, disablePadding: false, label: 'BAL' },
+  { id: 'mcb', numeric: true, disablePadding: false, label: 'MCB' },
   { id: 'apr', numeric: true, disablePadding: false, label: 'LM APR (%)' },
 ];
 
@@ -154,8 +156,8 @@ export function ArbitrumTable(props) {
   let jsonData = { ...props.data };
 
   //Create data helper function:
-  function createData(poolName, hyperLink, totalLiq, bal, apr) {
-    return { poolName, hyperLink, totalLiq, bal, apr};
+  function createData(poolName, hyperLink, totalLiq, bal, mcb, apr) {
+    return { poolName, hyperLink, totalLiq, bal, mcb, apr};
   }
 
   
@@ -234,7 +236,7 @@ export function ArbitrumTable(props) {
   const getTotalIncentivesWorth = (inputTable) => {
     var totalWorthInUSD = 0;
     inputTable.forEach((row) => {
-      totalWorthInUSD = totalWorthInUSD + row.bal * getPrice(props.coinData, 'balancer');
+      totalWorthInUSD = totalWorthInUSD + row.bal * getPrice(props.coinData, 'balancer') + row.mcb * getPrice(props.coinData, 'mcdex');
     });
     return totalWorthInUSD;
   }
@@ -250,18 +252,24 @@ export function ArbitrumTable(props) {
       //TODO: Fix manual iteration, change through config and make it dynamic -> dependent on Table Head Cells
       let apr = 0
       let balAmount = 0
+      let mcbAmount = 0
       if (myJsonData.pools[id.toString()]) {
       myJsonData.pools[id.toString()].forEach((element) => {
         if (element.tokenAddress === balId) {
           balAmount = element.amount
           apr = apr + balAmount * getPrice(props.coinData, 'balancer') / totalLiquidity * 52 * 100
         } 
+        else if (element.tokenAddress === mcbId) {
+          mcbAmount = element.amount
+          apr = apr + mcbAmount * getPrice(props.coinData, 'mcdex') / totalLiquidity * 52 * 100
+        }
       });
       const tableEntry = createData(
         tokens.map(e => e.symbol).join('/'),
         balancerUrl.concat(id),
         Number(totalLiquidity),
         balAmount,
+        mcbAmount,
         apr
       )
       if (poolType === "Weighted") {
@@ -354,6 +362,7 @@ export function ArbitrumTable(props) {
                       <TableCell align="left"><Link href={row.hyperLink}>{row.poolName}</Link></TableCell>
                       <TableCell align="right"><DynamicValueFormatter value={Number(row.totalLiq).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
                       <TableCell align="right"><DynamicValueFormatter value={Number(row.bal).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
+                      <TableCell align="right">{row.mcb === 0 ? '-' : <DynamicValueFormatter value={Number(row.mcb).toFixed(0)} name={row.poolName} decimals={0}/>}</TableCell>
                       <TableCell align="right">{row.apr === 0 ? '-' : <DynamicValueFormatter value={Number(row.apr).toFixed(2)} name={row.poolName} decimals={2}/>}</TableCell>
                     </TableRow>
                   );

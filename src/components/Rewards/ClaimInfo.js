@@ -38,20 +38,20 @@ const claimingInfo = [
         tokenName: "BAL",
         chain: "ETH Mainnet",
         chainId: "ethereum",
-        claimLocation: "https://claim.balancer.fi/#/",
+        claimLocation: "https://claim.balancer.fi/",
 
     },
     {
         tokenName: "LDO",
         chain: "ETH Mainnet",
         chainId: "ethereum",
-        claimLocation: "https://claim-lido.balancer.fi/#/"
+        claimLocation: "https://claim-lido.balancer.fi/"
     },
     {
         tokenName: "VITA",
         chain: "ETH Mainnet",
         chainId: "ethereum",
-        claimLocation: "To be determined"
+        claimLocation: "https://claim-vita.balancer.fi/"
     },
     {
         tokenName: "BAL",

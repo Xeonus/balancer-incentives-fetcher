@@ -1,9 +1,8 @@
-import Title from './../UI/Title';
+import React, { useEffect, useState } from 'react';
 import Header from '../UI/Header';
 import Container from "@material-ui/core/Container";
 import { Box } from '@material-ui/core';
 import BgImage from './../resources/bg-header.svg';
-import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
@@ -34,6 +33,7 @@ import Roadmap from '../UI/Roadmap';
 import IncentiveCharts from './../IncentiveTables/IncentiveCharts/IncentiveCharts';
 import ClaimInfo from '../Rewards/ClaimInfo';
 import RewardsInfo from '../Rewards/RewardsInfo';
+import AddTokenToMetaMask from '../UI/AddTokenToMetaMask';
 
 
 
@@ -89,13 +89,16 @@ export default function Dashboard(props) {
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
-
-
-
     const [data, setData] = useState(state);
     const [loading, setLoading] = useState(false);
     const [polygon, setPolygon] = useState(true);
     const [jsonData, setJsonData] = useState("");
+    let isMMInstalled = false;
+    if (typeof window.ethereum !== 'undefined' || (typeof window.web3 !== 'undefined')) {
+      isMMInstalled = true;
+    }
+
+    //Theme properties
     const palletType = "dark";
     const mainPrimaryColor = "#ffffff";
     const mainSecondaryColor = "#272936";
@@ -211,6 +214,13 @@ export default function Dashboard(props) {
             align: 'center',
             justifyContent: 'center',
             borderRadius: 3
+        },
+        rightToolbar: {
+            marginLeft: "auto",
+            marginRight: -12
+          },
+        toolBar: {
+            //minHeight: 128,
         },
     }));
 
@@ -342,21 +352,12 @@ export default function Dashboard(props) {
     //Rewards fetcher
     const showRewardsEstimator = (chain) => (
         <Grid item xs={12}>
-            {chain === 'arbitrum' ? 
-            <Paper elevation={3} className={classes.paper}>
-            <Box p={1}>
-           <Typography color="primary">Arbitrum Reward estimates have been temporarily disabled. Your BAL rewards are not affected and you will continue to earn as normal.</Typography>
-           </Box>
-           </Paper>
-           :
             <Paper elevation={3} className={classes.paper}>
                 <Box p={1}>
                     <RewardsEstimator chainId={chain}></RewardsEstimator>
                 </Box>
             </Paper>
-    }
         </Grid>
-
     );
 
     //Information about where to claim tokens
@@ -398,9 +399,9 @@ export default function Dashboard(props) {
     return (
         <div key='Container'>
             <ThemeProvider theme={theme} >
-                <AppBar position="static" color="secondary" style={{ margin: -0 }}>
-                    <Toolbar>
-                        <Box display="flex" alignItems="center">
+                <AppBar position="static" color="secondary" style={{ margin: -0 }} >
+                    <Toolbar className={classes.toolBar}>
+                        <Box display="flex" alignItems="center" sx={{ mr: 2 }} edge="start">
                             <Box p={1}>
                                 <img src={BalancerLogo} alt="Balancer Logo" width="30" />
                             </Box>
@@ -468,7 +469,9 @@ export default function Dashboard(props) {
                                 </Select>
                             </FormControl>
                         </Box>
-
+                        <section className={classes.rightToolbar}>
+                        {isMMInstalled ? <AddTokenToMetaMask chainId={data.chainId}/> : null }
+                        </section>
                     </Toolbar>
                     <Box className={classes.backDrop}>
                         <Box mx="auto" align="center">
@@ -484,6 +487,7 @@ export default function Dashboard(props) {
                                 <Tab label="Rewards" {...a11yProps(1)} />
                                 <Tab label="Roadmap" {...a11yProps(2)} />
                             </Tabs>
+                            
                             <Box className={classes.titleBox}>
                                 {headerSwitch(value)}
                             </Box>

@@ -1,4 +1,5 @@
 import './App.css';
+import React, { Component }  from 'react';
 import Dashboard from './components/Dashboard/Dashboard';
 import {
   ApolloClient,

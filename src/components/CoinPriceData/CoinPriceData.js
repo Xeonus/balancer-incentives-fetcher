@@ -48,7 +48,7 @@ class CoinPriceData extends Component {
 
   //Fetch coin price data
   async fetchData() {
-    const url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=balancer%2Cmeta%2Cqi-dao%2Clido-dao%2Cvitadao%2Cethereum&order=market_cap_desc&per_page=100&page=1&sparkline=false%22";
+    const url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=balancer%2Cmeta%2Cqi-dao%2Clido-dao%2Cvitadao%2Cmcdex%2Cethereum&order=market_cap_desc&per_page=100&page=1&sparkline=false%22";
     const response = await fetch(url);
     const json = await response.json();
     const coinData = json;
