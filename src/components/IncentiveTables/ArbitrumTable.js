@@ -58,6 +58,7 @@ const useStyles = makeStyles((theme) => ({
 //Token and Balancer infos:
 const balId = '0x040d1edc9569d4bab2d15287dc5a4f10f56a56b8';
 const mcbId = '0x4e352cf164e64adcbad318c3a1e222e9eba4ce42';
+const pickleId = '0x965772e0e9c84b6f359c8597c891108dcf1c5b1a';
 const balancerUrl = 'https://arbitrum.balancer.fi/#/pool/';
 
 //Descending comparator
@@ -97,6 +98,7 @@ const headCells = [
   { id: 'totalLiq', numeric: true, disablePadding: false, label: 'Total Liquidity ($)' },
   { id: 'bal', numeric: true, disablePadding: false, label: 'BAL' },
   { id: 'mcb', numeric: true, disablePadding: false, label: 'MCB' },
+  { id: 'pickle', numeric: true, disablePadding: false, label: 'PICKLE' },
   { id: 'apr', numeric: true, disablePadding: false, label: 'LM APR (%)' },
 ];
 
@@ -109,7 +111,7 @@ function EnhancedTableHead(props) {
 const aprToolTip = 
       "The liquidity mining annual percentage rate (APR) is calculated as the sum of all incentive APRs: <br /> <br />" +
       "$" +
-      "\\frac{incentiveAmount \\times priceOfIncentive \\times 52 \\times 100}{totalLiquidity} " +
+      "\\sum\\frac{incentiveAmount \\times priceOfIncentive \\times 52 \\times 100}{totalLiquidity} " +
       "$ <br /><br />"
 
   return (
@@ -156,8 +158,8 @@ export function ArbitrumTable(props) {
   let jsonData = { ...props.data };
 
   //Create data helper function:
-  function createData(poolName, hyperLink, totalLiq, bal, mcb, apr) {
-    return { poolName, hyperLink, totalLiq, bal, mcb, apr};
+  function createData(poolName, hyperLink, totalLiq, bal, mcb, pickle, apr) {
+    return { poolName, hyperLink, totalLiq, bal, mcb, pickle, apr};
   }
 
   
@@ -236,7 +238,7 @@ export function ArbitrumTable(props) {
   const getTotalIncentivesWorth = (inputTable) => {
     var totalWorthInUSD = 0;
     inputTable.forEach((row) => {
-      totalWorthInUSD = totalWorthInUSD + row.bal * getPrice(props.coinData, 'balancer') + row.mcb * getPrice(props.coinData, 'mcdex');
+      totalWorthInUSD = totalWorthInUSD + row.bal * getPrice(props.coinData, 'balancer') + row.mcb * getPrice(props.coinData, 'mcdex') + row.pickle * getPrice(props.coinData, 'pickle-finance');
     });
     return totalWorthInUSD;
   }
@@ -253,6 +255,7 @@ export function ArbitrumTable(props) {
       let apr = 0
       let balAmount = 0
       let mcbAmount = 0
+      let pickleAmount = 0
       if (myJsonData.pools[id.toString()]) {
       myJsonData.pools[id.toString()].forEach((element) => {
         if (element.tokenAddress === balId) {
@@ -263,6 +266,10 @@ export function ArbitrumTable(props) {
           mcbAmount = element.amount
           apr = apr + mcbAmount * getPrice(props.coinData, 'mcdex') / totalLiquidity * 52 * 100
         }
+        else if (element.tokenAddress === pickleId) {
+          pickleAmount = element.amount
+          apr = apr + pickleAmount * getPrice(props.coinData, 'pickle-finance') / totalLiquidity * 52 * 100
+        }
       });
       const tableEntry = createData(
         tokens.map(e => e.symbol).join('/'),
@@ -270,6 +277,7 @@ export function ArbitrumTable(props) {
         Number(totalLiquidity),
         balAmount,
         mcbAmount,
+        pickleAmount,
         apr
       )
       if (poolType === "Weighted") {
@@ -363,6 +371,7 @@ export function ArbitrumTable(props) {
                       <TableCell align="right"><DynamicValueFormatter value={Number(row.totalLiq).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
                       <TableCell align="right"><DynamicValueFormatter value={Number(row.bal).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
                       <TableCell align="right">{row.mcb === 0 ? '-' : <DynamicValueFormatter value={Number(row.mcb).toFixed(0)} name={row.poolName} decimals={0}/>}</TableCell>
+                      <TableCell align="right">{row.pickle === 0 ? '-' : <DynamicValueFormatter value={Number(row.pickle).toFixed(0)} name={row.poolName} decimals={0}/>}</TableCell>
                       <TableCell align="right">{row.apr === 0 ? '-' : <DynamicValueFormatter value={Number(row.apr).toFixed(2)} name={row.poolName} decimals={2}/>}</TableCell>
                     </TableRow>
                   );

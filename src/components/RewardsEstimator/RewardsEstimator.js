@@ -13,7 +13,10 @@ import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Box from '@material-ui/core/Box';
+import Tooltip from '@material-ui/core/Tooltip';
 import DynamicValueFormatter from './../hoc/DynamicValueFormatter';
+import { getNextDayAndTime } from './../../utils/getNextDayAndTime'
+import { getPrice } from './../../utils/getPrice'
 
 
 //Styling config:
@@ -59,14 +62,20 @@ const useStyles = makeStyles((theme) => ({
         height: 40,
         padding: '0 10px',
       },
+      tooltip: {
+        maxWidth: "800",
+        fontSize: "1em",
+        textAlign: "center",
+        whiteSpace: 'normal',
+    },
 }));
 
 export function RewardsEstimator(props) {
 
     const classes = useStyles();
     //Create data helper function:
-    function createData(tokenName, amount, velocity, weeklyEstimate) {
-        return { tokenName, amount, velocity, weeklyEstimate };
+    function createData(tokenName, amount, velocity, weeklyEstimate, weeklyWorth) {
+        return { tokenName, amount, velocity, weeklyEstimate, weeklyWorth };
     }
 
     //-------Refactor into HOC / REDUX--------
@@ -76,41 +85,54 @@ export function RewardsEstimator(props) {
         {
             token_address: '0x580a84c73811e1839f75d86d75d88cca0c241ff4',
             token_name: 'QI',
+            coingecko_id: 'qi-dao',
         },
         {
             token_address: '0xF501dd45a1198C2E1b5aEF5314A68B9006D842E0',
             token_name: 'MTA',
+            coingecko_id: 'meta',
         },
         {
             token_address: '0x9a71012b13ca4d3d0cdc72a177df3ef03b0e76a3',
             token_name: 'BAL',
+            coingecko_id: 'balancer',
         },
         {
             token_address: '0xba100000625a3754423978a60c9317c58a424e3d',
             token_name: 'BAL',
+            coingecko_id: 'balancer',
         },
         {
             token_address: '0x040d1edc9569d4bab2d15287dc5a4f10f56a56b8',
             token_name: 'BAL',
+            coingecko_id: 'balancer',
         },
         {
             token_address: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
             token_name: 'MATIC',
+            coingecko_id: 'polygon',
         },
         {
             token_address: '0x81f8f0bb1cb2a06649e51913a151f0e7ef6fa321',
             token_name: 'VITA',
+            coingecko_id: 'vitadao',
         },
         {
             token_address: '0x5a98fcbea516cf06857215779fd812ca3bef1b32',
             token_name: 'LDO',
+            coingecko_id: 'lido-dao',
         },
         {
             token_address: '0x4e352cf164e64adcbad318c3a1e222e9eba4ce42',
             token_name: 'MCB',
+            coingecko_id: 'mcdex',
+        },
+        {
+            token_address: '0x965772e0e9c84b6f359c8597c891108dcf1c5b1a',
+            token_name: 'PICKLE',
+            coingecko_id: 'pickle-finance',
         }
     ]
-
     
 
     //ChainId ETH is default:
@@ -123,6 +145,8 @@ export function RewardsEstimator(props) {
 
     const baseUrl = "https://api.balancer.finance/liquidity-mining/v1/liquidity-provider-multitoken";
 
+    const estRewardsTooltip = 'The estimated weekly reward is calculated based on the Estimated Accrued Reward + the estimated reward until next Monday 00:00 UTC based on current token velocity'
+
 
     //Create rewards table data
     const mapRewardsData = (jsonData) => {
@@ -133,14 +157,17 @@ export function RewardsEstimator(props) {
                 if (chain_id === chainId) {
                     if (token_address === element.token_address) {
                         if (Number(velocity) !== 0) {
-                            var estWeekly =  velocity * 604800
+                            const now = new Date().getTime()
+                            var estWeekly =  velocity * (getNextDayAndTime(1, '00', '00') - now)/1000
+                            var estTotalWeekly = Number(current_estimate) + Number(estWeekly);
+                            var estReward = estTotalWeekly * getPrice(props, element.coingecko_id);
                             rewardsData.push(
                                 createData(
                                     element.token_name,
                                     <DynamicValueFormatter value={Number(current_estimate).toFixed(2)} name={'current_estimate'} decimals={2}/>,
-                                    <DynamicValueFormatter value={Number(velocity).toFixed(8)} name={'velocity'} decimals={8}/>,
-                                    //<DynamicValueFormatter value={estWeekly} name={'estWeekly'} decimals={3}/>
-                                    <DynamicValueFormatter value={estWeekly} name={'weeklyEstimate'} decimals={3}/>
+                                    <DynamicValueFormatter value={Number(velocity * 3600).toFixed(8)} name={'velocity'} decimals={8}/>,
+                                    <DynamicValueFormatter value={estTotalWeekly} name={'weeklyEstimate'} decimals={3}/>,
+                                    <DynamicValueFormatter value={estReward} name={'weeklyReward'} decimals={2}/>
                                 ));
                         }
                     }
@@ -229,8 +256,9 @@ export function RewardsEstimator(props) {
                             <TableRow >
                                 <TableCell><b>Token</b></TableCell>
                                 <TableCell align="right"><b>Estimated Accrued Reward</b></TableCell>
-                                <TableCell align="right"><b>Velocity (tokens/s)</b></TableCell>
-                                <TableCell align="right"><b>Estimated Weekly Reward</b></TableCell>
+                                <TableCell align="right"><b>Velocity (tokens/h)</b></TableCell>
+                                <TableCell align="right"><Tooltip classes={{ tooltip: classes.tooltip }} title={estRewardsTooltip}><b>Estimated Weekly Reward</b></Tooltip></TableCell>
+                                <TableCell align="right"><b>Value ($)</b></TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -240,6 +268,7 @@ export function RewardsEstimator(props) {
                                     <TableCell align="right">{row.amount}</TableCell>
                                     <TableCell align="right">{row.velocity}</TableCell>
                                     <TableCell align="right">{row.weeklyEstimate}</TableCell>
+                                    <TableCell align="right">{row.weeklyWorth}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

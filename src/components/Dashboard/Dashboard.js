@@ -95,7 +95,7 @@ export default function Dashboard(props) {
     const [jsonData, setJsonData] = useState("");
     let isMMInstalled = false;
     if (typeof window.ethereum !== 'undefined' || (typeof window.web3 !== 'undefined')) {
-      isMMInstalled = true;
+        isMMInstalled = true;
     }
 
     //Theme properties
@@ -218,7 +218,7 @@ export default function Dashboard(props) {
         rightToolbar: {
             marginLeft: "auto",
             marginRight: -12
-          },
+        },
         toolBar: {
             //minHeight: 128,
         },
@@ -236,11 +236,13 @@ export default function Dashboard(props) {
         setData(data)
     }
 
+    
     const handleFormChange = (event) => {
         const name = event.target.name;
         setData({
             ...state,
             [name]: event.target.value,
+            coinData: data.coinData,
         });
     };
 
@@ -284,7 +286,7 @@ export default function Dashboard(props) {
         </Grid>
     );
 
-    //Arbitrum table (TODO)
+    //Arbitrum table
     const showArbitrum = () => (
         <Grid item xs={12}>
             <Paper elevation={3} className={classes.paper}>
@@ -336,25 +338,12 @@ export default function Dashboard(props) {
         }
     };
 
-
-
-    //Coin-price data: Need to fix class component child behavior in Grid
-    const showPriceData = () => (
-        <Grid item xs={12}>
-            <Paper elevation={3} className={classes.paper}>
-                <Box>
-                    <CoinPriceData coinData={data}></CoinPriceData>
-                </Box>
-            </Paper>
-        </Grid>
-    );
-
     //Rewards fetcher
-    const showRewardsEstimator = (chain) => (
+    const showRewardsEstimator = (chain, coinData) => (
         <Grid item xs={12}>
             <Paper elevation={3} className={classes.paper}>
                 <Box p={1}>
-                    <RewardsEstimator chainId={chain}></RewardsEstimator>
+                    <RewardsEstimator chainId={chain} coinData={coinData} onchange={(e) => { onchange(e) }}></RewardsEstimator>
                 </Box>
             </Paper>
         </Grid>
@@ -470,7 +459,7 @@ export default function Dashboard(props) {
                             </FormControl>
                         </Box>
                         <section className={classes.rightToolbar}>
-                        {isMMInstalled ? <AddTokenToMetaMask chainId={data.chainId}/> : null }
+                            {isMMInstalled ? <AddTokenToMetaMask chainId={data.chainId} /> : null}
                         </section>
                     </Toolbar>
                     <Box className={classes.backDrop}>
@@ -487,7 +476,7 @@ export default function Dashboard(props) {
                                 <Tab label="Rewards" {...a11yProps(1)} />
                                 <Tab label="Roadmap" {...a11yProps(2)} />
                             </Tabs>
-                            
+
                             <Box className={classes.titleBox}>
                                 {headerSwitch(value)}
                             </Box>
@@ -498,12 +487,14 @@ export default function Dashboard(props) {
                 <Container className={classes.container}  >
                     <TabPanel value={value} index={0}>
                         <Grid container className={classes.root} spacing={2} component="span" >
-                            <Grid item xs={12} component="span">
+
+                            <Grid item xs={12}>
                                 <Paper elevation={3} className={classes.paper}>
-                                    <CoinPriceData data={data} onchange={(e) => { onchange(e) }} />
+                                    <Box>
+                                        <CoinPriceData  data={data} onchange={(e) => { onchange(e) }} />
+                                    </Box>
                                 </Paper>
                             </Grid>
-                            <showPriceData/>
                             {renderSwitch(data.chainId)}
 
                             <Grid item xs={12} component="span">
@@ -515,7 +506,7 @@ export default function Dashboard(props) {
                     </TabPanel>
                     <TabPanel value={value} index={1}>
                         <Grid container className={classes.root} spacing={2} component="span" >
-                            {showRewardsEstimator(data.chainId)}
+                            {showRewardsEstimator(data.chainId, data.coinData)}
                             {showClaimingInfo(data.chainId)}
                             {showLMInfo()}
                             <Grid item xs={12} component="span">

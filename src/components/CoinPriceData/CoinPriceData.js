@@ -39,16 +39,16 @@ class CoinPriceData extends Component {
     this.state = {
       loading: true,
       coinData: null,
-      globalDamLockedIn: null,
-      globalFluxBurned: null,
 
     };
   };
   
 
+
+
   //Fetch coin price data
   async fetchData() {
-    const url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=balancer%2Cmeta%2Cqi-dao%2Clido-dao%2Cvitadao%2Cmcdex%2Cethereum&order=market_cap_desc&per_page=100&page=1&sparkline=false%22";
+    const url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=balancer%2Cmeta%2Cqi-dao%2Clido-dao%2Cvitadao%2Cmcdex%2Cpickle-finance%2Cethereum&order=market_cap_desc&per_page=100&page=1&sparkline=false%22";
     const response = await fetch(url);
     const json = await response.json();
     const coinData = json;
@@ -121,7 +121,8 @@ class CoinPriceData extends Component {
       ];
 
       //console.log("this.state.coinData lenght", Object.keys(this.state.coinData).length);
-      for (var i = 0; i <= 5; i++) {
+      //We do not know array size at time of mount - so we need to hard-code it for now until we find a better solution:
+      for (var i = 0; i <= 7; i++) {
         const dataEntry = createData(this.state.coinData[i].symbol.toUpperCase(), this.state.coinData[i].current_price, this.state.coinData[i].ath, this.state.coinData[i].atl, this.state.coinData[i].market_cap);
         rows.push(dataEntry);
       }

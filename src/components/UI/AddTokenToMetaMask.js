@@ -78,10 +78,6 @@ export default function AddTokenToMetaMask(props) {
       })
       .catch((error) => setLog([...log, `Error: ${error.message}`]))
 
-  console.log("chain", window.ethereum.networkVersion);
-
-
-
   //Add BAL token to MM
   function addBal(chainId) {
     switch (chainId) {

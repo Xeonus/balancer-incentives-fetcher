@@ -106,7 +106,7 @@ const headCells = [
 const aprToolTip = 
       "The liquidity mining annual percentage rate (APR) is calculated as the sum of all incentive APRs: <br /> <br />" +
       "$" +
-      "\\frac{incentiveAmount \\times priceOfIncentive \\times 52 \\times 100}{totalLiquidity} " +
+      "\\sum\\frac{incentiveAmount \\times priceOfIncentive \\times 52 \\times 100}{totalLiquidity} " +
       "$ <br /><br />"
 
 function EnhancedTableHead(props) {
