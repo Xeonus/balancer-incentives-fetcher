@@ -211,7 +211,7 @@ export function RewardsEstimator(props) {
                         <TableHead >
                             <TableRow >
                                 <TableCell><b>Token</b></TableCell>
-                                <TableCell align="right"><b>Estimated Accrued Reward</b></TableCell>
+                                <TableCell align="right"><b>Estimated rewards earned for week {props.weekNr}</b></TableCell>
                                 <TableCell align="right"><b>Velocity (tokens/s)</b></TableCell>
                                 <TableCell align="right"><b>Estimated Weekly Reward</b></TableCell>
                             </TableRow>

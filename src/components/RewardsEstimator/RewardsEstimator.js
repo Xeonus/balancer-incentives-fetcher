@@ -131,6 +131,11 @@ export function RewardsEstimator(props) {
             token_address: '0x965772e0e9c84b6f359c8597c891108dcf1c5b1a',
             token_name: 'PICKLE',
             coingecko_id: 'pickle-finance',
+        },
+        {
+            token_address: '0xdf7837de1f2fa4631d716cf2502f8b230f1dcc32',
+            token_name: 'TEL',
+            coingecko_id: 'telcoin',
         }
     ]
     
@@ -255,7 +260,7 @@ export function RewardsEstimator(props) {
                         <TableHead >
                             <TableRow >
                                 <TableCell><b>Token</b></TableCell>
-                                <TableCell align="right"><b>Estimated Accrued Reward</b></TableCell>
+                                <TableCell align="right"><b>Estimated rewards earned for week {props.weekNr}</b></TableCell>
                                 <TableCell align="right"><b>Velocity (tokens/h)</b></TableCell>
                                 <TableCell align="right"><Tooltip classes={{ tooltip: classes.tooltip }} title={estRewardsTooltip}><b>Estimated Weekly Reward</b></Tooltip></TableCell>
                                 <TableCell align="right"><b>Value ($)</b></TableCell>

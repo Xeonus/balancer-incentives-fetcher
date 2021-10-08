@@ -15,6 +15,7 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Container from '@material-ui/core/Container';
 import DynamicValueFormatter from '../hoc/DynamicValueFormatter';
+import DynamicValueFormatterWithText from '../hoc/DynamicValueFormatterWithText';
 import Tooltip from '@material-ui/core/Tooltip';
 import Latex from "react-latex-next";
 import "katex/dist/katex.min.css";
@@ -97,8 +98,7 @@ const headCells = [
   { id: 'poolName', numeric: false, disablePadding: true, label: 'Pool' },
   { id: 'totalLiq', numeric: true, disablePadding: false, label: 'Total Liquidity ($)' },
   { id: 'bal', numeric: true, disablePadding: false, label: 'BAL' },
-  { id: 'mcb', numeric: true, disablePadding: false, label: 'MCB' },
-  { id: 'pickle', numeric: true, disablePadding: false, label: 'PICKLE' },
+  { id: 'coIncentives', numeric: true, disablePadding: true, label: 'Co-Incentives' },
   { id: 'apr', numeric: true, disablePadding: false, label: 'LM APR (%)' },
 ];
 
@@ -158,8 +158,8 @@ export function ArbitrumTable(props) {
   let jsonData = { ...props.data };
 
   //Create data helper function:
-  function createData(poolName, hyperLink, totalLiq, bal, mcb, pickle, apr) {
-    return { poolName, hyperLink, totalLiq, bal, mcb, pickle, apr};
+  function createData(poolName, hyperLink, totalLiq, bal, mcb, pickle, coIncentives, apr) {
+    return { poolName, hyperLink, totalLiq, bal, mcb, pickle, coIncentives,  apr};
   }
 
   
@@ -256,6 +256,7 @@ export function ArbitrumTable(props) {
       let balAmount = 0
       let mcbAmount = 0
       let pickleAmount = 0
+      let coIncentive;
       if (myJsonData.pools[id.toString()]) {
       myJsonData.pools[id.toString()].forEach((element) => {
         if (element.tokenAddress === balId) {
@@ -265,10 +266,18 @@ export function ArbitrumTable(props) {
         else if (element.tokenAddress === mcbId) {
           mcbAmount = element.amount
           apr = apr + mcbAmount * getPrice(props.coinData, 'mcdex') / totalLiquidity * 52 * 100
+          coIncentive = {
+            text: 'MCB',
+            value: mcbAmount,
+          };
         }
         else if (element.tokenAddress === pickleId) {
           pickleAmount = element.amount
           apr = apr + pickleAmount * getPrice(props.coinData, 'pickle-finance') / totalLiquidity * 52 * 100
+          coIncentive = {
+            text: 'PICKLE',
+            value: pickleAmount,
+          };
         }
       });
       const tableEntry = createData(
@@ -278,6 +287,7 @@ export function ArbitrumTable(props) {
         balAmount,
         mcbAmount,
         pickleAmount,
+        coIncentive,
         apr
       )
       if (poolType === "Weighted") {
@@ -370,8 +380,7 @@ export function ArbitrumTable(props) {
                       <TableCell align="left"><Link href={row.hyperLink}>{row.poolName}</Link></TableCell>
                       <TableCell align="right"><DynamicValueFormatter value={Number(row.totalLiq).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
                       <TableCell align="right"><DynamicValueFormatter value={Number(row.bal).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
-                      <TableCell align="right">{row.mcb === 0 ? '-' : <DynamicValueFormatter value={Number(row.mcb).toFixed(0)} name={row.poolName} decimals={0}/>}</TableCell>
-                      <TableCell align="right">{row.pickle === 0 ? '-' : <DynamicValueFormatter value={Number(row.pickle).toFixed(0)} name={row.poolName} decimals={0}/>}</TableCell>
+                      <TableCell align="right">{row.coIncentives ? <DynamicValueFormatterWithText value={Number(row.coIncentives['value']).toFixed(0)} name={'coIncentives'} text={row.coIncentives['text']} decimals={0}/> : '-' }</TableCell>
                       <TableCell align="right">{row.apr === 0 ? '-' : <DynamicValueFormatter value={Number(row.apr).toFixed(2)} name={row.poolName} decimals={2}/>}</TableCell>
                     </TableRow>
                   );

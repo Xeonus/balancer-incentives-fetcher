@@ -79,7 +79,8 @@ export default function Dashboard(props) {
     //Default initialization. In the future replace with REDUX?
     const state = {
         coinData: [],
-        chainId: 'ethereum'
+        chainId: 'ethereum',
+        weekNr: '',
 
     };
 
@@ -236,13 +237,14 @@ export default function Dashboard(props) {
         setData(data)
     }
 
-    
+
     const handleFormChange = (event) => {
         const name = event.target.name;
         setData({
             ...state,
             [name]: event.target.value,
             coinData: data.coinData,
+            weekNr: data.weekNr,
         });
     };
 
@@ -254,8 +256,15 @@ export default function Dashboard(props) {
             try {
                 const response = await fetch(url);
                 const json = await response.json();
-
                 setJsonData(json);
+                //Find newest week and store it in global data state
+                var week = 0;
+                for (var key in json) {
+                    var id = parseInt(key.toString().split("_")[1]);
+                    if (id > week) {
+                        data.weekNr = id;
+                    }
+                };
             } catch (error) {
                 console.log("error", error);
             }
@@ -339,11 +348,11 @@ export default function Dashboard(props) {
     };
 
     //Rewards fetcher
-    const showRewardsEstimator = (chain, coinData) => (
+    const showRewardsEstimator = (chain, coinData, weekNr) => (
         <Grid item xs={12}>
             <Paper elevation={3} className={classes.paper}>
                 <Box p={1}>
-                    <RewardsEstimator chainId={chain} coinData={coinData} onchange={(e) => { onchange(e) }}></RewardsEstimator>
+                    <RewardsEstimator weekNr={weekNr} chainId={chain} coinData={coinData} onchange={(e) => { onchange(e) }}></RewardsEstimator>
                 </Box>
             </Paper>
         </Grid>
@@ -491,7 +500,7 @@ export default function Dashboard(props) {
                             <Grid item xs={12}>
                                 <Paper elevation={3} className={classes.paper}>
                                     <Box>
-                                        <CoinPriceData  data={data} onchange={(e) => { onchange(e) }} />
+                                        <CoinPriceData data={data} onchange={(e) => { onchange(e) }} />
                                     </Box>
                                 </Paper>
                             </Grid>
@@ -506,7 +515,7 @@ export default function Dashboard(props) {
                     </TabPanel>
                     <TabPanel value={value} index={1}>
                         <Grid container className={classes.root} spacing={2} component="span" >
-                            {showRewardsEstimator(data.chainId, data.coinData)}
+                            {showRewardsEstimator(data.chainId, data.coinData, data.weekNr)}
                             {showClaimingInfo(data.chainId)}
                             {showLMInfo()}
                             <Grid item xs={12} component="span">

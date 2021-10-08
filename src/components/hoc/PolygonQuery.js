@@ -15,6 +15,7 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Container from '@material-ui/core/Container';
 import DynamicValueFormatter from './DynamicValueFormatter';
+import DynamicValueFormatterWithText from './DynamicValueFormatterWithText';
 import Tooltip from '@material-ui/core/Tooltip';
 import Latex from "react-latex-next";
 import "katex/dist/katex.min.css";
@@ -59,6 +60,7 @@ const useStyles = makeStyles((theme) => ({
 const qiId = '0x580a84c73811e1839f75d86d75d88cca0c241ff4';
 const mtaId = '0xF501dd45a1198C2E1b5aEF5314A68B9006D842E0';
 //const maticId = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270';
+const telId = '0xdf7837de1f2fa4631d716cf2502f8b230f1dcc32';
 const balId = '0x9a71012b13ca4d3d0cdc72a177df3ef03b0e76a3';
 const balancerUrl = 'https://polygon.balancer.fi/#/pool/';
 
@@ -98,8 +100,7 @@ const headCells = [
   { id: 'poolName', numeric: false, disablePadding: true, label: 'Pool' },
   { id: 'totalLiq', numeric: true, disablePadding: false, label: 'Total Liquidity ($)' },
   { id: 'bal', numeric: true, disablePadding: false, label: 'BAL' },
-  { id: 'qi', numeric: true, disablePadding: false, label: 'QI' },
-  { id: 'mta', numeric: true, disablePadding: false, label: 'MTA' },
+  { id: 'coIncentives', numeric: true, disablePadding: true, label: 'Co-Incentives' },
   { id: 'apr', numeric: true, disablePadding: false, label: 'LM APR (%)' },
 ];
 
@@ -159,8 +160,8 @@ export function PolygonQuery(props) {
   let jsonData = { ...props.data };
 
   //Create data helper function:
-  function createData(poolName, hyperLink, totalLiq, bal, qi, mta, apr) {
-    return { poolName, hyperLink, totalLiq, bal, qi, mta, apr};
+  function createData(poolName, hyperLink, totalLiq, bal, qi, mta, tel, coIncentives, apr) {
+    return { poolName, hyperLink, totalLiq, bal, qi, mta, tel, coIncentives, apr};
   }
 
   
@@ -239,7 +240,7 @@ export function PolygonQuery(props) {
 const getTotalIncentivesWorth = (inputTable) => {
   var totalWorthInUSD = 0;
   inputTable.forEach((row) => {
-    totalWorthInUSD = totalWorthInUSD + row.bal * getPrice(props.coinData, 'balancer') + row.qi * getPrice(props.coinData, 'qi-dao') + row.mta * getPrice(props.coinData, 'meta');
+    totalWorthInUSD = totalWorthInUSD + row.bal * getPrice(props.coinData, 'balancer') + row.qi * getPrice(props.coinData, 'qi-dao') + row.mta * getPrice(props.coinData, 'meta') + row.tel * getPrice(props.coinData, 'telcoin');
   });
   return totalWorthInUSD;
 }
@@ -258,6 +259,8 @@ const getTotalIncentivesWorth = (inputTable) => {
       let balAmount = 0
       let qiAmount = 0
       let mtaAmount = 0
+      let telAmount = 0
+      let coIncentive;
       if (myJsonData.pools[id.toString()]) {
       myJsonData.pools[id.toString()].forEach((element) => {
         if (element.tokenAddress === balId) {
@@ -267,10 +270,26 @@ const getTotalIncentivesWorth = (inputTable) => {
         else if (element.tokenAddress === mtaId) {
           mtaAmount = element.amount
           apr = apr + mtaAmount * getPrice(props.coinData, 'meta') / totalLiquidity * 52 * 100
+          coIncentive = {
+            text: 'MTA',
+            value: mtaAmount,
+          };
         }
         else if (element.tokenAddress === qiId) {
           qiAmount = element.amount
           apr = apr + qiAmount * getPrice(props.coinData, 'qi-dao') / totalLiquidity * 52 * 100
+          coIncentive = {
+            text: 'QI',
+            value: qiAmount,
+          };
+        }
+        else if (element.tokenAddress === telId) {
+          telAmount = element.amount
+          apr = apr + telAmount * getPrice(props.coinData, 'telcoin') / totalLiquidity * 52 * 100
+          coIncentive = {
+            text: 'TEL',
+            value: telAmount,
+          };
         }
       });
       const tableEntry = createData(
@@ -280,6 +299,8 @@ const getTotalIncentivesWorth = (inputTable) => {
         balAmount,
         qiAmount,
         mtaAmount,
+        telAmount,
+        coIncentive,
         apr
       )
       if (poolType === "Weighted") {
@@ -370,8 +391,7 @@ const getTotalIncentivesWorth = (inputTable) => {
                       <TableCell align="left"><Link href={row.hyperLink}>{row.poolName}</Link></TableCell>
                       <TableCell align="right"><DynamicValueFormatter value={Number(row.totalLiq).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
                       <TableCell align="right"><DynamicValueFormatter value={Number(row.bal).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
-                      <TableCell align="right">{row.qi === 0 ? '-' : <DynamicValueFormatter value={Number(row.qi).toFixed(0)} name={row.poolName} decimals={0}/>}</TableCell>
-                      <TableCell align="right">{row.mta === 0 ? '-' : <DynamicValueFormatter value={Number(row.mta).toFixed(0)} name={row.poolName} decimals={0}/>}</TableCell>
+                      <TableCell align="right">{row.coIncentives ? <DynamicValueFormatterWithText value={Number(row.coIncentives['value']).toFixed(0)} name={'coIncentives'} text={row.coIncentives['text']} decimals={0}/> : '-' }</TableCell>
                       <TableCell align="right">{row.apr === 0 ? '-' : <DynamicValueFormatter value={Number(row.apr).toFixed(2)} name={row.poolName} decimals={2}/>}</TableCell>
                     </TableRow>
                   );

@@ -38,20 +38,20 @@ const claimingInfo = [
         tokenName: "BAL",
         chain: "ETH Mainnet",
         chainId: "ethereum",
-        claimLocation: "https://claim.balancer.fi/",
+        claimLocation: "https://claim.balancer.fi",
 
     },
     {
         tokenName: "LDO",
         chain: "ETH Mainnet",
         chainId: "ethereum",
-        claimLocation: "https://claim-lido.balancer.fi/"
+        claimLocation: "https://claim-lido.balancer.fi"
     },
     {
         tokenName: "VITA",
         chain: "ETH Mainnet",
         chainId: "ethereum",
-        claimLocation: "https://claim-vita.balancer.fi/"
+        claimLocation: "https://claim-vita.balancer.fi"
     },
     {
         tokenName: "BAL",
@@ -72,10 +72,22 @@ const claimingInfo = [
         claimLocation: "Airdrop around Wed"
     },
     {
+        tokenName: "TEL",
+        chain: "Polygon",
+        chainId: "polygon",
+        claimLocation: "To be determined"
+    },
+    {
         tokenName: "BAL",
         chain: "Aribitrum",
         chainId: "arbitrum",
-        claimLocation: "https://claim-arbitrum.balancer.fi/"
+        claimLocation: "https://claim-arbitrum.balancer.fi"
+    },
+    {
+        tokenName: "MCB",
+        chain: "Aribitrum",
+        chainId: "arbitrum",
+        claimLocation: "https://claim-mcdex.balancer.fi"
     }
 ];
 

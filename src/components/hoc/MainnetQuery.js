@@ -15,6 +15,7 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Container from '@material-ui/core/Container';
 import DynamicValueFormatter from './DynamicValueFormatter';
+import DynamicValueFormatterWithText from './DynamicValueFormatterWithText';
 import IncentiveCharts from '../IncentiveTables/IncentiveCharts/IncentiveCharts';
 import Tooltip from '@material-ui/core/Tooltip';
 import Latex from "react-latex-next";
@@ -98,8 +99,7 @@ const headCells = [
   { id: 'poolName', numeric: false, disablePadding: true, label: 'Pool' },
   { id: 'totalLiq', numeric: true, disablePadding: false, label: 'Total Liquidity ($)' },
   { id: 'bal', numeric: true, disablePadding: false, label: 'BAL' },
-  { id: 'ldo', numeric: true, disablePadding: false, label: 'LDO' },
-  { id: 'vita', numeric: true, disablePadding: false, label: 'VITA' },
+  { id: 'coIncentives', numeric: true, disablePadding: true, label: 'Co-Incentives' },
   { id: 'apr', numeric: true, disablePadding: false, label: 'LM APR (%)' },
 ];
 
@@ -159,8 +159,8 @@ export function MainnetQuery(props) {
 
   const jsonData = { ...props.data };
 
-  function createData(poolName, hyperLink, totalLiq,  bal, ldo, vita, apr) {
-    return { poolName, hyperLink, totalLiq, bal, ldo, vita, apr};
+  function createData(poolName, hyperLink, totalLiq,  bal, ldo, vita, coIncentives, apr) {
+    return { poolName, hyperLink, totalLiq, bal, ldo, vita, coIncentives, apr};
   }
 
   let rows = [];
@@ -239,9 +239,10 @@ export function MainnetQuery(props) {
     const tableRows = [];
     queryData.pools.forEach(({ id, tokens, totalLiquidity, poolType}) => {
       //TODO: Fix manual iteration, change through config and make it dynamic -> dependent on Table Head Cells
-      let balAmount = 0
-      let lidoAmount = 0
-      let vitaAmount = 0
+      let balAmount = 0;
+      let lidoAmount = 0;
+      let vitaAmount = 0;
+      let coIncentive;
       let apr = 0
       if (myJsonData.pools[id.toString()]) {
       myJsonData.pools[id.toString()].forEach((element) => {
@@ -252,12 +253,21 @@ export function MainnetQuery(props) {
         else if (element.tokenAddress === lidoId) {
           lidoAmount = element.amount
           apr = apr + lidoAmount * getPrice(props.coinData, 'lido-dao') / totalLiquidity * 52 * 100
+          coIncentive = {
+            text: 'LDO',
+            value: lidoAmount,
+          };
         }
         else if (element.tokenAddress === vitaId) {
           vitaAmount = element.amount
           apr = apr + vitaAmount * getPrice(props.coinData, 'vitadao') / totalLiquidity * 52 * 100
+          coIncentive = {
+            text: 'VITA',
+            value: vitaAmount,
+          };
         }
       });
+      
       const tableEntry = createData(
         tokens.map(e => e.symbol ? e.symbol : "MKR").join('/'),
         balancerUrl.concat(id),
@@ -265,6 +275,7 @@ export function MainnetQuery(props) {
         balAmount,
         lidoAmount,
         vitaAmount,
+        coIncentive,
         apr
       )
       if (poolType === "Weighted") {
@@ -363,8 +374,7 @@ export function MainnetQuery(props) {
                       <TableCell align="left"><Link href={row.hyperLink}>{row.poolName}</Link></TableCell>
                       <TableCell align="right"><DynamicValueFormatter value={Number(row.totalLiq).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
                       <TableCell align="right"><DynamicValueFormatter value={Number(row.bal).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
-                      <TableCell align="right">{row.ldo === 0 ? '-' : <DynamicValueFormatter value={Number(row.ldo).toFixed(0)} name={row.poolName} decimals={0}/>}</TableCell>
-                      <TableCell align="right">{row.vita === 0 ? '-' : <DynamicValueFormatter value={Number(row.vita).toFixed(0)} name={row.poolName} decimals={0}/>}</TableCell>
+                      <TableCell align="right">{row.coIncentives ? <DynamicValueFormatterWithText value={Number(row.coIncentives['value']).toFixed(0)} name={'coIncentives'} text={row.coIncentives['text']} decimals={0}/> : '-' }</TableCell>
                       <TableCell align="right">{row.apr === 0 ? '-' : <DynamicValueFormatter value={Number(row.apr).toFixed(2)} name={row.poolName} decimals={2}/>}</TableCell>
                     </TableRow>
                   );
