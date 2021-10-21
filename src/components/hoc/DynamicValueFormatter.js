@@ -9,7 +9,7 @@ export default function DynamicValueFormatter(props) {
             end={Number(props.value).toFixed(props.decimals)} 
             duration={1.75} 
             decimals={props.decimals} 
-            separator="'">{Number(props.value).toFixed(props.decimals)}
+            separator=",">{Number(props.value).toFixed(props.decimals)}
         </CountUp>
 
     );

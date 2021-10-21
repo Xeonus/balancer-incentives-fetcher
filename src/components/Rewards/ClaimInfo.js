@@ -75,7 +75,7 @@ const claimingInfo = [
         tokenName: "TEL",
         chain: "Polygon",
         chainId: "polygon",
-        claimLocation: "To be determined"
+        claimLocation: "Airdrop around Wed"
     },
     {
         tokenName: "BAL",

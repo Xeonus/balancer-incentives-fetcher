@@ -136,8 +136,19 @@ export function RewardsEstimator(props) {
             token_address: '0xdf7837de1f2fa4631d716cf2502f8b230f1dcc32',
             token_name: 'TEL',
             coingecko_id: 'telcoin',
+        },
+        {
+            token_address: '0xA72159FC390f0E3C6D415e658264c7c4051E9b87',
+            token_name: 'TCR',
+            coingecko_id: 'tracer-dao',
+        },
+        {
+            token_address: '0x226f7b842e0f0120b7e194d05432b3fd14773a9d',
+            token_name: 'UNN',
+            coingecko_id: 'union-protocol-governance-token',
         }
     ]
+    
     
 
     //ChainId ETH is default:

@@ -17,6 +17,7 @@ import Container from '@material-ui/core/Container';
 import DynamicValueFormatter from './DynamicValueFormatter';
 import DynamicValueFormatterWithText from './DynamicValueFormatterWithText';
 import IncentiveCharts from '../IncentiveTables/IncentiveCharts/IncentiveCharts';
+import PoolIncentiveChart from '../../Charts/PoolIncentiveChart';
 import Tooltip from '@material-ui/core/Tooltip';
 import Latex from "react-latex-next";
 import "katex/dist/katex.min.css";
@@ -34,7 +35,8 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(3),
     overflowX: "auto",
     marginBottom: theme.spacing(2),
-    margin: "auto"
+    margin: "auto",
+    alignItems: "center"
   },
   visuallyHidden: {
     border: 0,
@@ -52,13 +54,20 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "1em",
     textAlign: "center",
     whiteSpace: 'normal',
-},
+  },
+  chartTooltip: {
+    maxWidth: "none",
+    fontSize: "1em",
+    textAlign: "center",
+    whiteSpace: 'normal',
+  },
 }));
 
 //Balancer URL:
 const balancerUrl = 'https://app.balancer.fi/#/pool/';
 const lidoId = '0x5a98fcbea516cf06857215779fd812ca3bef1b32';
 const balId = '0xba100000625a3754423978a60c9317c58a424e3d';
+const unnId = '0x226f7b842e0f0120b7e194d05432b3fd14773a9d';
 const vitaId = '0x81f8f0bb1cb2a06649e51913a151f0e7ef6fa321';
 
 //-------Refactor into HOC / REDUX--------
@@ -103,11 +112,11 @@ const headCells = [
   { id: 'apr', numeric: true, disablePadding: false, label: 'LM APR (%)' },
 ];
 
-const aprToolTip = 
-      "The liquidity mining annual percentage rate (APR) is calculated as the sum of all incentive APRs: <br /> <br />" +
-      "$" +
-      "\\sum\\frac{incentiveAmount \\times priceOfIncentive \\times 52 \\times 100}{totalLiquidity} " +
-      "$ <br /><br />"
+const aprToolTip =
+  "The liquidity mining annual percentage rate (APR) is calculated as the sum of all incentive APRs: <br /> <br />" +
+  "$" +
+  "\\sum\\frac{incentiveAmount \\times priceOfIncentive \\times 52 \\times 100}{totalLiquidity} " +
+  "$ <br /><br />"
 
 function EnhancedTableHead(props) {
   const { classes, order, orderBy, onRequestSort } = props;
@@ -130,7 +139,7 @@ function EnhancedTableHead(props) {
               onClick={createSortHandler(headCell.id)}
             >
               {headCell.id === 'apr' ? <Tooltip classes={{ tooltip: classes.tooltip }} title={<Latex>{aprToolTip}</Latex>}><b>{headCell.label}</b></Tooltip> :
-              <b>{headCell.label}</b>
+                <b>{headCell.label}</b>
               }
               {orderBy === headCell.id ? (
                 <span className={classes.visuallyHidden}>
@@ -159,8 +168,8 @@ export function MainnetQuery(props) {
 
   const jsonData = { ...props.data };
 
-  function createData(poolName, hyperLink, totalLiq,  bal, ldo, vita, coIncentives, apr) {
-    return { poolName, hyperLink, totalLiq, bal, ldo, vita, coIncentives, apr};
+  function createData(poolName, hyperLink, totalLiq, bal, ldo, vita, coIncentives, apr) {
+    return { poolName, hyperLink, totalLiq, bal, ldo, vita, coIncentives, apr };
   }
 
   let rows = [];
@@ -220,70 +229,82 @@ export function MainnetQuery(props) {
   const weekNumber = week.toString();
   const classes = useStyles();
 
-   //Obtain price from Coingecko Coindata
-   const getPrice = (coinData, coinId) => {
-    if ( coinData.coinData) {
+  //Obtain price from Coingecko Coindata
+  const getPrice = (coinData, coinId) => {
+    if (coinData.coinData) {
       var coinArray = Object.values(coinData.coinData)
-    if (coinArray) {
-      for (const el of coinArray) {
-        if (el.id === coinId) {
-          return el.current_price;
+      if (coinArray) {
+        for (const el of coinArray) {
+          if (el.id === coinId) {
+            return el.current_price;
+          }
         }
       }
     }
   }
-}
 
   //Create incentives table
   const createTableArrayFunction = (queryData, myJsonData) => {
     const tableRows = [];
-    queryData.pools.forEach(({ id, tokens, totalLiquidity, poolType}) => {
+    queryData.pools.forEach(({ id, tokens, totalLiquidity, poolType }) => {
       //TODO: Fix manual iteration, change through config and make it dynamic -> dependent on Table Head Cells
       let balAmount = 0;
       let lidoAmount = 0;
       let vitaAmount = 0;
+      let unnAmount = 0;
       let coIncentive;
       let apr = 0
       if (myJsonData.pools[id.toString()]) {
-      myJsonData.pools[id.toString()].forEach((element) => {
-        if (element.tokenAddress === balId) {
-          balAmount = element.amount
-          apr = apr + balAmount * getPrice(props.coinData, 'balancer') / totalLiquidity * 52 * 100
-        } 
-        else if (element.tokenAddress === lidoId) {
-          lidoAmount = element.amount
-          apr = apr + lidoAmount * getPrice(props.coinData, 'lido-dao') / totalLiquidity * 52 * 100
-          coIncentive = {
-            text: 'LDO',
-            value: lidoAmount,
-          };
+        myJsonData.pools[id.toString()].forEach((element) => {
+          if (element.tokenAddress === balId) {
+            balAmount = element.amount
+            apr = apr + balAmount * getPrice(props.coinData, 'balancer') / totalLiquidity * 52 * 100
+          }
+          else if (element.tokenAddress === lidoId) {
+            lidoAmount = element.amount
+            apr = apr + lidoAmount * getPrice(props.coinData, 'lido-dao') / totalLiquidity * 52 * 100
+            coIncentive = {
+              text: 'LDO',
+              value: lidoAmount,
+              valueInUsd: Number(lidoAmount * getPrice(props.coinData, 'lido-dao')),
+            };
+          }
+          else if (element.tokenAddress === vitaId) {
+            vitaAmount = element.amount
+            apr = apr + vitaAmount * getPrice(props.coinData, 'vitadao') / totalLiquidity * 52 * 100
+            coIncentive = {
+              text: 'VITA',
+              value: vitaAmount,
+              valueInUsd: Number(vitaAmount * getPrice(props.coinData, 'vitadao')),
+            };
+          }
+          else if (element.tokenAddress === unnId) {
+            unnAmount = element.amount
+            apr = apr + unnAmount * getPrice(props.coinData, 'union-protocol-governance-token') / totalLiquidity * 52 * 100
+            coIncentive = {
+              text: 'UNN',
+              value: unnAmount,
+              valueInUsd: Number(unnAmount * getPrice(props.coinData, 'union-protocol-governance-token')),
+            };
+          }
+        });
+
+        const tableEntry = createData(
+          tokens.map(e => e.symbol ? e.symbol : "MKR").join('/'),
+          balancerUrl.concat(id),
+          Number(totalLiquidity),
+          balAmount,
+          lidoAmount,
+          vitaAmount,
+          coIncentive,
+          apr
+        )
+        if (poolType === "Weighted") {
+          const ratios = " (" + tokens.map(e => Number(e.weight * 100).toFixed(0)).join('/') + ")";
+          tableEntry.poolName = tableEntry.poolName + ratios;
         }
-        else if (element.tokenAddress === vitaId) {
-          vitaAmount = element.amount
-          apr = apr + vitaAmount * getPrice(props.coinData, 'vitadao') / totalLiquidity * 52 * 100
-          coIncentive = {
-            text: 'VITA',
-            value: vitaAmount,
-          };
-        }
-      });
-      
-      const tableEntry = createData(
-        tokens.map(e => e.symbol ? e.symbol : "MKR").join('/'),
-        balancerUrl.concat(id),
-        Number(totalLiquidity),
-        balAmount,
-        lidoAmount,
-        vitaAmount,
-        coIncentive,
-        apr
-      )
-      if (poolType === "Weighted") {
-      const ratios = " (" + tokens.map(e => Number(e.weight * 100).toFixed(0)).join('/') + ")";
-      tableEntry.poolName = tableEntry.poolName + ratios;
+        tableRows.push(tableEntry);
       }
-      tableRows.push(tableEntry);
-    }
     });
     return tableRows;
   };
@@ -345,11 +366,11 @@ export function MainnetQuery(props) {
       <Title>{`ETH Mainnet - Incentives of Week `}
         {weekNumber} {` 
         `}
-        ~$<DynamicValueFormatter value={getTotalIncentivesWorth(rows).toFixed(0)} name={'totalValue'} decimals={0}/></Title>
+        ~$<DynamicValueFormatter value={getTotalIncentivesWorth(rows).toFixed(0)} name={'totalValue'} decimals={0} /></Title>
       <Container fixed>
-        <Paper  className={classes.paper} elevation={3}>
+        <Paper className={classes.paper} elevation={3}>
           <Table className={classes.table} size="small" aria-label="a dense table">
-          <EnhancedTableHead
+            <EnhancedTableHead
               classes={classes}
               numSelected={selected.length}
               order={order}
@@ -362,29 +383,59 @@ export function MainnetQuery(props) {
                 .map((row) => {
                   const isItemSelected = isSelected(row.poolName);
                   return (
-                    <TableRow
-                      hover
-                      onClick={(event) => handleClick(event, row.poolName)}
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={row.poolName}
-                      selected={isItemSelected}
-                    >
-                      <TableCell align="left"><Link href={row.hyperLink}>{row.poolName}</Link></TableCell>
-                      <TableCell align="right"><DynamicValueFormatter value={Number(row.totalLiq).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
-                      <TableCell align="right"><DynamicValueFormatter value={Number(row.bal).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
-                      <TableCell align="right">{row.coIncentives ? <DynamicValueFormatterWithText value={Number(row.coIncentives['value']).toFixed(0)} name={'coIncentives'} text={row.coIncentives['text']} decimals={0}/> : '-' }</TableCell>
-                      <TableCell align="right">{row.apr === 0 ? '-' : <DynamicValueFormatter value={Number(row.apr).toFixed(2)} name={row.poolName} decimals={2}/>}</TableCell>
-                    </TableRow>
+
+                    <Tooltip
+                      key={row.poolName + "_tooltip"}
+                      classes={{ tooltip: classes.chartTooltip }}
+                      title={
+                        row.coIncentives ?
+                        <PoolIncentiveChart
+                          bal={Number(Number(row.bal).toFixed(0) * getPrice(props.coinData, 'balancer'))}
+                          coIncentive={row.coIncentives}
+                        >
+                        </PoolIncentiveChart>: ""}>
+                      <TableRow
+                        onClick={(event) => handleClick(event, row.poolName)}
+                        role="checkbox"
+                        aria-checked={isItemSelected}
+                        tabIndex={-1}
+                        key={row.poolName}
+                        selected={isItemSelected}
+                        hover={true}
+                      >
+                        <TableCell align="left">
+                          <Link href={row.hyperLink}>{row.poolName}</Link>
+                        </TableCell>
+                        <TableCell align="right"><DynamicValueFormatter value={Number(row.totalLiq).toFixed(0)} name={row.poolName} decimals={0} /></TableCell>
+                        <TableCell align="right"><DynamicValueFormatter value={Number(row.bal).toFixed(0)} name={row.poolName} decimals={0} /></TableCell>
+                        <TableCell align="right">
+                          {row.coIncentives ?
+                            <DynamicValueFormatterWithText value={Number(row.coIncentives['value']).toFixed(0)} name={'coIncentives'} text={row.coIncentives['text']} decimals={0} />
+                            : '-'}
+                        </TableCell>
+                        <TableCell align="right">{row.apr === 0 ? '-' : <DynamicValueFormatter value={Number(row.apr).toFixed(2)} name={row.poolName} decimals={2} />}</TableCell>
+                      </TableRow>
+                    </Tooltip>
                   );
                 })}
             </TableBody>
           </Table>
         </Paper>
-        {/*<Paper  className={classes.paper} elevation={3}>
-        <IncentiveCharts rows={rows}></IncentiveCharts>
-              </Paper> */}
+        {
+          <Paper className={classes.paper} elevation={3}>
+          <Grid
+            container
+            spacing={0}
+            direction="column"
+            alignItems="center"
+          >
+            <Grid item xs={12}>
+              <IncentiveCharts rows={rows} coinData={props.coinData} balPrice={getPrice(props.coinData, 'balancer')}></IncentiveCharts>
+
+            </Grid>
+          </Grid>
+          </Paper>
+        }
       </Container>
     </div>
 

@@ -17,6 +17,8 @@ import Container from '@material-ui/core/Container';
 import DynamicValueFormatter from '../hoc/DynamicValueFormatter';
 import DynamicValueFormatterWithText from '../hoc/DynamicValueFormatterWithText';
 import Tooltip from '@material-ui/core/Tooltip';
+import PoolIncentiveChart from '../../Charts/PoolIncentiveChart';
+import IncentiveCharts from './IncentiveCharts/IncentiveCharts';
 import Latex from "react-latex-next";
 import "katex/dist/katex.min.css";
 import {
@@ -51,7 +53,13 @@ const useStyles = makeStyles((theme) => ({
       fontSize: "1em",
       textAlign: "center",
       whiteSpace: 'normal',
-  }
+  },
+  chartTooltip: {
+    maxWidth: "none",
+    fontSize: "1em",
+    textAlign: "center",
+    whiteSpace: 'normal',
+  },
 }));
 
 //-------Refactor into HOC / REDUX--------
@@ -60,6 +68,7 @@ const useStyles = makeStyles((theme) => ({
 const balId = '0x040d1edc9569d4bab2d15287dc5a4f10f56a56b8';
 const mcbId = '0x4e352cf164e64adcbad318c3a1e222e9eba4ce42';
 const pickleId = '0x965772e0e9c84b6f359c8597c891108dcf1c5b1a';
+const tcrId = '0xA72159FC390f0E3C6D415e658264c7c4051E9b87';
 const balancerUrl = 'https://arbitrum.balancer.fi/#/pool/';
 
 //Descending comparator
@@ -256,6 +265,7 @@ export function ArbitrumTable(props) {
       let balAmount = 0
       let mcbAmount = 0
       let pickleAmount = 0
+      let tcrAmount = 0
       let coIncentive;
       if (myJsonData.pools[id.toString()]) {
       myJsonData.pools[id.toString()].forEach((element) => {
@@ -269,6 +279,7 @@ export function ArbitrumTable(props) {
           coIncentive = {
             text: 'MCB',
             value: mcbAmount,
+            valueInUsd: Number(mcbAmount * getPrice(props.coinData, 'mcdex')),
           };
         }
         else if (element.tokenAddress === pickleId) {
@@ -277,6 +288,16 @@ export function ArbitrumTable(props) {
           coIncentive = {
             text: 'PICKLE',
             value: pickleAmount,
+            valueInUsd: Number(pickleAmount * getPrice(props.coinData, 'pickle-finance')),
+          };
+        }
+        else if (element.tokenAddress === tcrId) {
+          tcrAmount = element.amount
+          apr = apr + tcrAmount * getPrice(props.coinData, 'tracer-dao') / totalLiquidity * 52 * 100
+          coIncentive = {
+            text: 'TCR',
+            value: tcrAmount,
+            valueInUsd: Number(tcrAmount * getPrice(props.coinData, 'tracer-dao')),
           };
         }
       });
@@ -368,6 +389,16 @@ export function ArbitrumTable(props) {
                 .map((row) => {
                   const isItemSelected = isSelected(row.poolName);
                   return (
+                    <Tooltip
+                    key={row.poolName + "_tooltip"}
+                    classes={{ tooltip: classes.chartTooltip }}
+                    title={
+                      row.coIncentives ?
+                      <PoolIncentiveChart
+                        bal={Number(Number(row.bal).toFixed(0) * getPrice(props.coinData, 'balancer'))}
+                        coIncentive={row.coIncentives}
+                      >
+                      </PoolIncentiveChart>: ""}>
                     <TableRow
                       hover
                       onClick={(event) => handleClick(event, row.poolName)}
@@ -383,11 +414,27 @@ export function ArbitrumTable(props) {
                       <TableCell align="right">{row.coIncentives ? <DynamicValueFormatterWithText value={Number(row.coIncentives['value']).toFixed(0)} name={'coIncentives'} text={row.coIncentives['text']} decimals={0}/> : '-' }</TableCell>
                       <TableCell align="right">{row.apr === 0 ? '-' : <DynamicValueFormatter value={Number(row.apr).toFixed(2)} name={row.poolName} decimals={2}/>}</TableCell>
                     </TableRow>
+                    </Tooltip>
                   );
                 })}
             </TableBody>
           </Table>
         </Paper>
+        {
+          <Paper className={classes.paper} elevation={3}>
+          <Grid
+            container
+            spacing={0}
+            direction="column"
+            alignItems="center"
+          >
+            <Grid item xs={12}>
+              <IncentiveCharts rows={rows} coinData={props.coinData} balPrice={getPrice(props.coinData, 'balancer')}></IncentiveCharts>
+
+            </Grid>
+          </Grid>
+          </Paper>
+        }
       </Container>
     </div>
 

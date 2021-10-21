@@ -17,6 +17,8 @@ import Container from '@material-ui/core/Container';
 import DynamicValueFormatter from './DynamicValueFormatter';
 import DynamicValueFormatterWithText from './DynamicValueFormatterWithText';
 import Tooltip from '@material-ui/core/Tooltip';
+import PoolIncentiveChart from '../../Charts/PoolIncentiveChart';
+import IncentiveCharts from '../IncentiveTables/IncentiveCharts/IncentiveCharts'
 import Latex from "react-latex-next";
 import "katex/dist/katex.min.css";
 import {
@@ -51,6 +53,12 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "1em",
     textAlign: "center",
     whiteSpace: 'normal',
+},
+chartTooltip: {
+  maxWidth: "none",
+  fontSize: "1em",
+  textAlign: "center",
+  whiteSpace: 'normal',
 },
 }));
 
@@ -273,6 +281,7 @@ const getTotalIncentivesWorth = (inputTable) => {
           coIncentive = {
             text: 'MTA',
             value: mtaAmount,
+            valueInUsd: Number(mtaAmount * getPrice(props.coinData, 'meta')),
           };
         }
         else if (element.tokenAddress === qiId) {
@@ -281,6 +290,7 @@ const getTotalIncentivesWorth = (inputTable) => {
           coIncentive = {
             text: 'QI',
             value: qiAmount,
+            valueInUsd: Number(qiAmount * getPrice(props.coinData, 'qi-dao')),
           };
         }
         else if (element.tokenAddress === telId) {
@@ -289,6 +299,7 @@ const getTotalIncentivesWorth = (inputTable) => {
           coIncentive = {
             text: 'TEL',
             value: telAmount,
+            valueInUsd: Number(telAmount * getPrice(props.coinData, 'telcoin')),
           };
         }
       });
@@ -379,6 +390,16 @@ const getTotalIncentivesWorth = (inputTable) => {
                 .map((row) => {
                   const isItemSelected = isSelected(row.poolName);
                   return (
+                    <Tooltip
+                      key={row.poolName + "_tooltip"}
+                      classes={{ tooltip: classes.chartTooltip }}
+                      title={
+                        row.coIncentives ?
+                        <PoolIncentiveChart
+                          bal={Number(Number(row.bal).toFixed(0) * getPrice(props.coinData, 'balancer'))}
+                          coIncentive={row.coIncentives}
+                        >
+                        </PoolIncentiveChart>: ""}>
                     <TableRow
                       hover
                       onClick={(event) => handleClick(event, row.poolName)}
@@ -394,11 +415,27 @@ const getTotalIncentivesWorth = (inputTable) => {
                       <TableCell align="right">{row.coIncentives ? <DynamicValueFormatterWithText value={Number(row.coIncentives['value']).toFixed(0)} name={'coIncentives'} text={row.coIncentives['text']} decimals={0}/> : '-' }</TableCell>
                       <TableCell align="right">{row.apr === 0 ? '-' : <DynamicValueFormatter value={Number(row.apr).toFixed(2)} name={row.poolName} decimals={2}/>}</TableCell>
                     </TableRow>
+                    </Tooltip>
                   );
                 })}
             </TableBody>
           </Table>
         </Paper>
+        {
+          <Paper className={classes.paper} elevation={3}>
+          <Grid
+            container
+            spacing={0}
+            direction="column"
+            alignItems="center"
+          >
+            <Grid item xs={12}>
+              <IncentiveCharts rows={rows} coinData={props.coinData} balPrice={getPrice(props.coinData, 'balancer')}></IncentiveCharts>
+
+            </Grid>
+          </Grid>
+          </Paper>
+        }
       </Container>
     </div>
 
