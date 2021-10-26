@@ -496,7 +496,7 @@ export default function Dashboard(props) {
                 <Container className={classes.container}  >
                     <TabPanel value={value} index={0}>
                         <Grid container className={classes.root} spacing={2} component="span" >
-
+                            {renderSwitch(data.chainId)}
                             <Grid item xs={12}>
                                 <Paper elevation={3} className={classes.paper}>
                                     <Box>
@@ -504,7 +504,6 @@ export default function Dashboard(props) {
                                     </Box>
                                 </Paper>
                             </Grid>
-                            {renderSwitch(data.chainId)}
 
                             <Grid item xs={12} component="span">
                                 <Paper elevation={3} className={classes.paper}>
