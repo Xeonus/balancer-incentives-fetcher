@@ -30,7 +30,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import ReactRoundedImage from "react-rounded-image";
 import PropTypes from 'prop-types';
 import Roadmap from '../UI/Roadmap';
-import IncentiveCharts from './../IncentiveTables/IncentiveCharts/IncentiveCharts';
 import ClaimInfo from '../Rewards/ClaimInfo';
 import RewardsInfo from '../Rewards/RewardsInfo';
 import AddTokenToMetaMask from '../UI/AddTokenToMetaMask';
@@ -120,6 +119,17 @@ export default function Dashboard(props) {
             },
 
         },
+        //overrides: {
+        //    MuiCssBaseline: {
+        //      '@global': {
+        //         body: {
+        //           background: "linear-gradient(90deg,#091027,#f0f,#091027)",
+        //           backgroundRepeat: "no-repeat",
+        //           backgroundAttachment: "fixed",
+        //        },
+        //      },
+        //    },
+        //  },
         active_tabStyle: {
             fontSize: 11,
             color: 'white',
@@ -142,6 +152,7 @@ export default function Dashboard(props) {
             ].join(','),
         },
     });
+    
 
     //Theme properties
     const useStyles = makeStyles((theme) => ({
@@ -152,6 +163,8 @@ export default function Dashboard(props) {
             paddingTop: theme.spacing(2),
             paddingBottom: theme.spacing(2),
             flexDirection: "column",
+            zIndex: 1,
+            
         },
         root: {
             flexGrow: 1,
@@ -185,6 +198,8 @@ export default function Dashboard(props) {
             display: 'flex',
             justifyContent: 'center',
             spacing: 2,
+            //boxShadow: "0px 0px 16px rgba(0, 0, 0, 0.35), 20px 20px 150px #FED533, -20px -20px 150px #EC4899",
+            
         },
         footer: {
             flexGrow: 1,
@@ -204,6 +219,35 @@ export default function Dashboard(props) {
             align: 'center',
             justifyContent: 'center',
             color: '#272936',
+            borderRadius: "22px",
+        },
+        paperGlow: {
+            minWidth: '320px',
+            textAlign: 'center',
+            align: 'center',
+            color: '#272936',
+            '@media only screen and (min-width: 600px)': {
+                boxShadow: "0px 0px 16px rgba(0, 0, 0, 0.35), 20px 20px 40px #FED533, -20px -20px 40px #EC4899",
+            '&:hover': {
+                backgroundPosition: "100% 0",
+                boxShadow: "0px 0px 16px rgba(0, 0, 0, 0.35), 30px 30px 100px #FED533, -30px -30px 60px #EC4899",
+                opacity: "1",
+                transition: "all .2s ease-out",
+            },
+            },
+            boxShadow: "0px 0px 16px rgba(0, 0, 0, 0.35), 20px 20px 80px #FED533, -20px -20px 80px #EC4899",
+            borderRadius: "50%",
+            '&:hover': {
+                backgroundPosition: "100% 0",
+                boxShadow: "0px 0px 16px rgba(0, 0, 0, 0.35), 30px 30px 100px #FED533, -30px -30px 100px #EC4899",
+                opacity: "1",
+                transition: "all .2s ease-out",
+            },
+
+
+
+            borderRadius: "22px",
+            zIndex: 2,
         },
         formControl: {
             margin: theme.spacing(1),
@@ -211,17 +255,18 @@ export default function Dashboard(props) {
         },
         tabTheme: {
             background: 'linear-gradient(20deg, #1022d7 25%, #6a7cff 95%)',
-            maxWidth: 500,
+            maxWidth: 300,
             align: 'center',
             justifyContent: 'center',
-            borderRadius: 3
+            borderRadius: 3,
+            
         },
         rightToolbar: {
             marginLeft: "auto",
             marginRight: -12
         },
         toolBar: {
-            //minHeight: 128,
+            
         },
     }));
 
@@ -361,7 +406,7 @@ export default function Dashboard(props) {
     //Information about where to claim tokens
     const showClaimingInfo = (chain) => (
         <Grid item xs={12}>
-            <Paper elevation={3} className={classes.paper}>
+            <Paper elevation={3} className={classes.paper}  >
                 <Box p={1}>
                     <ClaimInfo chainId={chain}></ClaimInfo>
                 </Box>
@@ -483,7 +528,6 @@ export default function Dashboard(props) {
                             >
                                 <Tab label="Incentives" {...a11yProps(0)} />
                                 <Tab label="Rewards" {...a11yProps(1)} />
-                                <Tab label="Roadmap" {...a11yProps(2)} />
                             </Tabs>
 
                             <Box className={classes.titleBox}>

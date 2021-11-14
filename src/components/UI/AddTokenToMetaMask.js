@@ -32,18 +32,24 @@ const useStyles = makeStyles((theme) => ({
     p: 4,
   },
   button: {
-    background: 'linear-gradient(15deg, #384aff 10%, #f21bf6 95%)',
-    '&:hover': {
-      background: 'linear-gradient(20deg, #384aff 10%, #f21bf6 60%)',
-    },
-    border: 0,
-    borderRadius: 3,
-    boxShadow: '0 3px 5px 2px rgba(56,74,255, .5)',
-    color: 'white',
-    height: 35,
-    //width: 120,
-    padding: '0 10px',
-    size: "small",
+
+      color: "#fff",
+      height: "35px",
+      borderRadius: "8px",
+      textDecoration: "none",
+      fontWeight: "600",
+      backgroundSize: "200% 100%",
+      transition: "all .2s ease-out",
+      background: "linear-gradient(90deg,#00f,#f0f,#00f)",
+      '&:hover': {
+          backgroundPosition: "100% 0",
+          boxShadow: "0 4px 15px 0 rgb(255 100 50 / 0%)",
+          transition: "all .2s ease-out",
+        },
+      boxShadow: "0 4px 15px 0 rgb(224 100 61 / 8%)",
+      margin: "0",
+      border: "0",
+      size: "small",
   },
 }));
 

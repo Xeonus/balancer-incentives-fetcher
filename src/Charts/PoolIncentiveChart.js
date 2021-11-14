@@ -5,7 +5,7 @@ import { getFormattedNumber } from '../utils/getFormattedNumber';
 import DynamicValueFormatter from '../components/hoc/DynamicValueFormatter';
 
 export default function PoolIncentiveChart(props) {
-  const COLORS = ['#003f5c','#58508d','#bc5090','#ff6361' ];
+  const COLORS = ['#003f5c','#58508d','#bc5090','#ff6361','#003f5c','#58508d','#bc5090','#ff6361'  ];
 
 
   const RADIAN = Math.PI / 180;
@@ -29,27 +29,45 @@ export default function PoolIncentiveChart(props) {
 
   //Create data (assuming only one co-incentive for now)
   const data = [];
+ 
   const balEntry = { 
       name: 'BAL', 
       value: props.bal, 
       formattedValue: '$' + getFormattedNumber(Number(props.bal).toFixed(0))};
   data.push(balEntry);
+  
+  if (props.coIncentive.length >= 1) {
+  props.coIncentive.forEach((incentive) => {
   const incentiveEntry = { 
-      name: props.coIncentive['text'], 
-      value: props.coIncentive['valueInUsd'], 
-      formattedValue: '$' + getFormattedNumber(Number(props.coIncentive['valueInUsd']).toFixed(0))};
+      name: incentive['text'], 
+      value: incentive['valueInUsd'], 
+      formattedValue: '$' + getFormattedNumber(Number(incentive['valueInUsd']).toFixed(0))};
   data.push(incentiveEntry);
+  });
+} else {
+  const incentiveEntry = { 
+    name: props.coIncentive['text'], 
+    value: props.coIncentive['valueInUsd'], 
+    formattedValue: '$' + getFormattedNumber(Number(props.coIncentive['valueInUsd']).toFixed(0))};
+data.push(incentiveEntry);
+}
+
+//Total worth
+let incentiveValue = 0;
+data.forEach((el) => {
+  incentiveValue += el.value;
+});
 
 
   return (
     <div>
       <Title>
-      {`Pool Incentive Allocation `}
+      {`Weekly Pool Incentive Allocation `}
       {` 
         `}
-          ~$<DynamicValueFormatter value={Number(props.bal + props.coIncentive['valueInUsd']).toFixed(0)} name={'totalValue'} decimals={0}/>
+          ~$<DynamicValueFormatter value={Number(incentiveValue).toFixed(0)} name={'totalValue'} decimals={0}/>
           </Title>
-      <PieChart width={500} height={300}>
+      <PieChart width={550} height={300}>
         <Pie
           data={data}
           cx="50%"

@@ -61,7 +61,27 @@ const useStyles = makeStyles((theme) => ({
         color: 'white',
         height: 40,
         padding: '0 10px',
+    },
+    buttonNew: {
+        color: "#fff",
+        height: "48px",
+        minWidth: "200px",
+        borderRadius: "8px",
+        textDecoration: "none",
+        fontWeight: "600",
+        backgroundSize: "200% 100%",
+        transition: "all .2s ease-out",
+        background: "linear-gradient(90deg,#00f,#f0f,#00f)",
+        '&:hover': {
+            backgroundPosition: "100% 0",
+            boxShadow: "0 4px 15px 0 rgb(255 100 50 / 0%)",
+            transition: "all .2s ease-out",
+          },
+        boxShadow: "0 4px 15px 0 rgb(224 100 61 / 8%)",
+        margin: "0",
+        border: 0,
       },
+
       tooltip: {
         maxWidth: "800",
         fontSize: "1em",
@@ -110,7 +130,7 @@ export function RewardsEstimator(props) {
         {
             token_address: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
             token_name: 'MATIC',
-            coingecko_id: 'polygon',
+            coingecko_id: 'matic-network',
         },
         {
             token_address: '0x81f8f0bb1cb2a06649e51913a151f0e7ef6fa321',
@@ -146,7 +166,18 @@ export function RewardsEstimator(props) {
             token_address: '0x226f7b842e0f0120b7e194d05432b3fd14773a9d',
             token_name: 'UNN',
             coingecko_id: 'union-protocol-governance-token',
+        },
+        {
+            token_address: '0x2d94aa3e47d9d5024503ca8491fce9a2fb4da198',
+            token_name: 'BANK',
+            coingecko_id: 'bankless-dao',
+        },
+        {
+            token_address: '0x2e1ad108ff1d8c782fcbbb89aad783ac49586756',
+            token_name: 'TUSD',
+            coingecko_id: 'true-usd',
         }
+        
     ]
     
     
@@ -310,7 +341,7 @@ export function RewardsEstimator(props) {
                         margin="normal"
                         onChange={handleChange('address')}
                     />
-                    <Button className={classes.button} variant="outlined" onClick={handleClick}>Request Estimate</Button>
+                    <Button className={classes.buttonNew} variant="outlined" onClick={handleClick}>Request Estimate</Button>
                 </Box>
                 {json["success"] ?
                     resultsFound()

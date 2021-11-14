@@ -4,8 +4,12 @@ import { Typography } from '@material-ui/core';
 import Title from '../../UI/Title';
 import { getFormattedNumber } from '../../../utils/getFormattedNumber';
 
+
+
+
+
 export default function IncentiveCharts(props) {
-  const COLORS = ['#003f5c','#58508d','#bc5090','#ff6361' ];
+  const COLORS = ['#003f5c','#58508d','#bc5090','#ff6361', '#268bd2','#586e75','#073642','#002b36'];
 
   const RADIAN = Math.PI / 180;
   const renderCustomizedLabel = ({
@@ -37,15 +41,21 @@ export default function IncentiveCharts(props) {
   let balAmount = 0;
   props.rows.forEach(element => {
     if (element.coIncentives) {
-      const entry = { name: element.coIncentives['text'], value: Number(element.coIncentives['valueInUsd']), formattedValue: Number(element.coIncentives['valueInUsd']) };
+      if(element.coIncentives.length >= 1) {
+      element.coIncentives.forEach((el) => {
+      const entry = { name: el['text'], value: Number(el['valueInUsd']), formattedValue: Number(el['valueInUsd']) };
       coIncentives.push(entry);
+    })
+      } else {
+        const entry = { name: element.coIncentives['text'], value: Number(element.coIncentives['valueInUsd']), formattedValue: Number(element.coIncentives['valueInUsd']) };
+        coIncentives.push(entry);
+      }
     }
     //BAL
     balAmount += element.bal;
   });
 
   data.push({ name: "BAL", value: Number(balAmount * props.balPrice), formattedValue: '$' + getFormattedNumber(Number(balAmount * props.balPrice).toFixed(0))});
-
 
   //Create data entry:
   coIncentives.forEach(element => {
@@ -54,7 +64,7 @@ export default function IncentiveCharts(props) {
       data[index] = {
         name: element['name'],
         value: Number(data[index]['value'] + element['value']),
-        formattedValue: '$' + getFormattedNumber(Number(data[index]['value'] + element['value']).toFixed(0))  ,
+        formattedValue: '$' + getFormattedNumber(Number(data[index]['value'] + element['value']).toFixed(0)),
       }
     } else {
       const entry = { 
@@ -66,8 +76,6 @@ export default function IncentiveCharts(props) {
       data.push(entry);
     }
   });
-
-  console.log("data", data);
 
   return (
     <div>
@@ -88,7 +96,7 @@ export default function IncentiveCharts(props) {
           ))}
         </Pie>
       </PieChart>
-      <Typography variant="caption" display="block" gutterBottom>Note: Incentives making up less than 1% of the total allocation are not shown</Typography>
+      <Typography variant="caption" display="block" gutterBottom>Note: Incentives making up less than 2% of the total allocation are not shown</Typography>
     </div>
   );
 }

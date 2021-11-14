@@ -69,6 +69,7 @@ const lidoId = '0x5a98fcbea516cf06857215779fd812ca3bef1b32';
 const balId = '0xba100000625a3754423978a60c9317c58a424e3d';
 const unnId = '0x226f7b842e0f0120b7e194d05432b3fd14773a9d';
 const vitaId = '0x81f8f0bb1cb2a06649e51913a151f0e7ef6fa321';
+const bankId = '0x2d94aa3e47d9d5024503ca8491fce9a2fb4da198';
 
 //-------Refactor into HOC / REDUX--------
 
@@ -252,6 +253,7 @@ export function MainnetQuery(props) {
       let lidoAmount = 0;
       let vitaAmount = 0;
       let unnAmount = 0;
+      let bankAmount = 0;
       let coIncentive;
       let apr = 0
       if (myJsonData.pools[id.toString()]) {
@@ -285,6 +287,15 @@ export function MainnetQuery(props) {
               text: 'UNN',
               value: unnAmount,
               valueInUsd: Number(unnAmount * getPrice(props.coinData, 'union-protocol-governance-token')),
+            };
+          }
+          else if (element.tokenAddress === bankId) {
+            bankAmount = element.amount
+            apr = apr + unnAmount * getPrice(props.coinData, 'bankless-dao') / totalLiquidity * 52 * 100
+            coIncentive = {
+              text: 'BANK',
+              value: bankAmount,
+              valueInUsd: Number(bankAmount * getPrice(props.coinData, 'bankless-dao')),
             };
           }
         });

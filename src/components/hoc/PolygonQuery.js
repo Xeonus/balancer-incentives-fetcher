@@ -21,6 +21,7 @@ import PoolIncentiveChart from '../../Charts/PoolIncentiveChart';
 import IncentiveCharts from '../IncentiveTables/IncentiveCharts/IncentiveCharts'
 import Latex from "react-latex-next";
 import "katex/dist/katex.min.css";
+import { getCoIncentivesString } from '../../utils/getCoIncentivesString';
 import {
   useQuery,
   gql
@@ -67,9 +68,10 @@ chartTooltip: {
 //Token and Balancer infos:
 const qiId = '0x580a84c73811e1839f75d86d75d88cca0c241ff4';
 const mtaId = '0xF501dd45a1198C2E1b5aEF5314A68B9006D842E0';
-//const maticId = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270';
+const maticId = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270';
 const telId = '0xdf7837de1f2fa4631d716cf2502f8b230f1dcc32';
 const balId = '0x9a71012b13ca4d3d0cdc72a177df3ef03b0e76a3';
+const tusdId = '0x2e1ad108ff1d8c782fcbbb89aad783ac49586756';
 const balancerUrl = 'https://polygon.balancer.fi/#/pool/';
 
 //Descending comparator
@@ -168,8 +170,8 @@ export function PolygonQuery(props) {
   let jsonData = { ...props.data };
 
   //Create data helper function:
-  function createData(poolName, hyperLink, totalLiq, bal, qi, mta, tel, coIncentives, apr) {
-    return { poolName, hyperLink, totalLiq, bal, qi, mta, tel, coIncentives, apr};
+  function createData(poolName, hyperLink, totalLiq, bal, qi, mta, tel, matic, tusd, coIncentives, apr) {
+    return { poolName, hyperLink, totalLiq, bal, qi, mta, tel, matic, tusd, coIncentives, apr};
   }
 
   
@@ -268,9 +270,14 @@ const getTotalIncentivesWorth = (inputTable) => {
       let qiAmount = 0
       let mtaAmount = 0
       let telAmount = 0
-      let coIncentive;
+      let tusdAmount  = 0
+      let maticAmount = 0
+      
       if (myJsonData.pools[id.toString()]) {
+        let coIncentive = [];
+        
       myJsonData.pools[id.toString()].forEach((element) => {
+        let incentive;
         if (element.tokenAddress === balId) {
           balAmount = element.amount
           apr = apr + balAmount * getPrice(props.coinData, 'balancer') / totalLiquidity * 52 * 100
@@ -278,7 +285,7 @@ const getTotalIncentivesWorth = (inputTable) => {
         else if (element.tokenAddress === mtaId) {
           mtaAmount = element.amount
           apr = apr + mtaAmount * getPrice(props.coinData, 'meta') / totalLiquidity * 52 * 100
-          coIncentive = {
+          incentive = {
             text: 'MTA',
             value: mtaAmount,
             valueInUsd: Number(mtaAmount * getPrice(props.coinData, 'meta')),
@@ -287,22 +294,48 @@ const getTotalIncentivesWorth = (inputTable) => {
         else if (element.tokenAddress === qiId) {
           qiAmount = element.amount
           apr = apr + qiAmount * getPrice(props.coinData, 'qi-dao') / totalLiquidity * 52 * 100
-          coIncentive = {
+          incentive = {
             text: 'QI',
             value: qiAmount,
             valueInUsd: Number(qiAmount * getPrice(props.coinData, 'qi-dao')),
           };
+
         }
         else if (element.tokenAddress === telId) {
           telAmount = element.amount
           apr = apr + telAmount * getPrice(props.coinData, 'telcoin') / totalLiquidity * 52 * 100
-          coIncentive = {
+          incentive = {
             text: 'TEL',
             value: telAmount,
             valueInUsd: Number(telAmount * getPrice(props.coinData, 'telcoin')),
           };
         }
+        else if (element.tokenAddress === tusdId) {
+          tusdAmount = element.amount
+          apr = apr + tusdAmount * getPrice(props.coinData, 'true-usd') / totalLiquidity * 52 * 100
+          incentive = {
+            text: 'TUSD',
+            value: tusdAmount,
+            valueInUsd: Number(tusdAmount * getPrice(props.coinData, 'true-usd')),
+          };
+        }
+        else if (element.tokenAddress === maticId) {
+          maticAmount = element.amount
+          apr = apr + maticAmount * getPrice(props.coinData, 'matic-network') / totalLiquidity * 52 * 100
+          incentive = {
+            text: 'MATIC',
+            value: maticAmount,
+            valueInUsd: Number(maticAmount * getPrice(props.coinData, 'matic-network')),
+          };
+        }
+        if (incentive) {
+        coIncentive.push(incentive);
+        }
       });
+      
+      if (coIncentive[0] && coIncentive.length === 1) {
+        //coIncentive = coIncentive[0];
+      }
       const tableEntry = createData(
         tokens.map(e => e.symbol).join('/'),
         balancerUrl.concat(id),
@@ -311,6 +344,8 @@ const getTotalIncentivesWorth = (inputTable) => {
         qiAmount,
         mtaAmount,
         telAmount,
+        maticAmount,
+        tusdAmount,
         coIncentive,
         apr
       )
@@ -321,6 +356,7 @@ const getTotalIncentivesWorth = (inputTable) => {
       tableRows.push(tableEntry);
     }
     });
+    console.log("tableRows", tableRows);
     return tableRows;
   };
 
@@ -394,7 +430,7 @@ const getTotalIncentivesWorth = (inputTable) => {
                       key={row.poolName + "_tooltip"}
                       classes={{ tooltip: classes.chartTooltip }}
                       title={
-                        row.coIncentives ?
+                        row.coIncentives.length > 0 ?
                         <PoolIncentiveChart
                           bal={Number(Number(row.bal).toFixed(0) * getPrice(props.coinData, 'balancer'))}
                           coIncentive={row.coIncentives}
@@ -412,7 +448,8 @@ const getTotalIncentivesWorth = (inputTable) => {
                       <TableCell align="left"><Link href={row.hyperLink}>{row.poolName}</Link></TableCell>
                       <TableCell align="right"><DynamicValueFormatter value={Number(row.totalLiq).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
                       <TableCell align="right"><DynamicValueFormatter value={Number(row.bal).toFixed(0)} name={row.poolName} decimals={0}/></TableCell>
-                      <TableCell align="right">{row.coIncentives ? <DynamicValueFormatterWithText value={Number(row.coIncentives['value']).toFixed(0)} name={'coIncentives'} text={row.coIncentives['text']} decimals={0}/> : '-' }</TableCell>
+                      {/*<TableCell align="right">{row.coIncentives ? <DynamicValueFormatterWithText value={Number(row.coIncentives['value']).toFixed(0)} name={'coIncentives'} text={row.coIncentives['text']} decimals={0}/> : '-' }</TableCell>*/}
+                      <TableCell align="right">{row.coIncentives.length > 0 ? getCoIncentivesString(row.coIncentives) : '-' }</TableCell>
                       <TableCell align="right">{row.apr === 0 ? '-' : <DynamicValueFormatter value={Number(row.apr).toFixed(2)} name={row.poolName} decimals={2}/>}</TableCell>
                     </TableRow>
                     </Tooltip>
