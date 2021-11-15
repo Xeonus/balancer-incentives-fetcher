@@ -250,7 +250,7 @@ export function PolygonQuery(props) {
 const getTotalIncentivesWorth = (inputTable) => {
   var totalWorthInUSD = 0;
   inputTable.forEach((row) => {
-    totalWorthInUSD = totalWorthInUSD + row.bal * getPrice(props.coinData, 'balancer') + row.qi * getPrice(props.coinData, 'qi-dao') + row.mta * getPrice(props.coinData, 'meta') + row.tel * getPrice(props.coinData, 'telcoin');
+    totalWorthInUSD = totalWorthInUSD + row.bal * getPrice(props.coinData, 'balancer') + row.qi * getPrice(props.coinData, 'qi-dao') + row.mta * getPrice(props.coinData, 'meta') + row.tel * getPrice(props.coinData, 'telcoin')+ row.tusd * getPrice(props.coinData, 'true-usd') + row.matic * getPrice(props.coinData, 'matic-network');
   });
   return totalWorthInUSD;
 }
