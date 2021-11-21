@@ -65,11 +65,14 @@ const useStyles = makeStyles((theme) => ({
 
 //Balancer URL:
 const balancerUrl = 'https://app.balancer.fi/#/pool/';
+//Token IDs: TODO: own config file in v3-info!
 const lidoId = '0x5a98fcbea516cf06857215779fd812ca3bef1b32';
 const balId = '0xba100000625a3754423978a60c9317c58a424e3d';
 const unnId = '0x226f7b842e0f0120b7e194d05432b3fd14773a9d';
 const vitaId = '0x81f8f0bb1cb2a06649e51913a151f0e7ef6fa321';
 const bankId = '0x2d94aa3e47d9d5024503ca8491fce9a2fb4da198';
+const noteId = '0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5';
+const nexoId = '0xb62132e35a6c13ee1ee0f84dc5d40bad8d815206';
 
 //-------Refactor into HOC / REDUX--------
 
@@ -169,8 +172,8 @@ export function MainnetQuery(props) {
 
   const jsonData = { ...props.data };
 
-  function createData(poolName, hyperLink, totalLiq, bal, ldo, vita, coIncentives, apr) {
-    return { poolName, hyperLink, totalLiq, bal, ldo, vita, coIncentives, apr };
+  function createData(poolName, hyperLink, totalLiq, bal, ldo, vita, note, nexo, coIncentives, apr) {
+    return { poolName, hyperLink, totalLiq, bal, ldo, vita, note, nexo, coIncentives, apr };
   }
 
   let rows = [];
@@ -254,6 +257,8 @@ export function MainnetQuery(props) {
       let vitaAmount = 0;
       let unnAmount = 0;
       let bankAmount = 0;
+      let noteAmount = 0;
+      let nexoAmount = 0;
       let coIncentive;
       let apr = 0
       if (myJsonData.pools[id.toString()]) {
@@ -298,6 +303,24 @@ export function MainnetQuery(props) {
               valueInUsd: Number(bankAmount * getPrice(props.coinData, 'bankless-dao')),
             };
           }
+          else if (element.tokenAddress === noteId) {
+            noteAmount = element.amount
+            apr = apr + noteAmount * getPrice(props.coinData, 'notional-finance') / totalLiquidity * 52 * 100
+            coIncentive = {
+              text: 'NOTE',
+              value: noteAmount,
+              valueInUsd: Number(noteAmount * getPrice(props.coinData, 'notional-finance')),
+            };
+          }
+          else if (element.tokenAddress === nexoId) {
+            nexoAmount = element.amount
+            apr = apr + nexoAmount * getPrice(props.coinData, 'nexo') / totalLiquidity * 52 * 100
+            coIncentive = {
+              text: 'NEXO',
+              value: nexoAmount,
+              valueInUsd: Number(nexoAmount * getPrice(props.coinData, 'nexo')),
+            };
+          }
         });
 
         const tableEntry = createData(
@@ -307,6 +330,8 @@ export function MainnetQuery(props) {
           balAmount,
           lidoAmount,
           vitaAmount,
+          noteAmount,
+          nexoAmount,
           coIncentive,
           apr
         )
@@ -324,7 +349,7 @@ export function MainnetQuery(props) {
   const getTotalIncentivesWorth = (inputTable) => {
     var totalWorthInUSD = 0;
     inputTable.forEach((row) => {
-      totalWorthInUSD = totalWorthInUSD + row.bal * getPrice(props.coinData, 'balancer') + row.ldo * getPrice(props.coinData, 'lido-dao') + row.vita * getPrice(props.coinData, 'vitadao');
+      totalWorthInUSD = totalWorthInUSD + row.bal * getPrice(props.coinData, 'balancer') + row.ldo * getPrice(props.coinData, 'lido-dao') + row.vita * getPrice(props.coinData, 'vitadao') + row.note * getPrice(props.coinData, 'notional-finance') + row.nexo * getPrice(props.coinData, 'nexo');
 
     });
     //Special case: AAVE allocation for ETH Mainnet: 12500 BAL

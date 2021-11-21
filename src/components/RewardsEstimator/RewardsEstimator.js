@@ -176,6 +176,16 @@ export function RewardsEstimator(props) {
             token_address: '0x2e1ad108ff1d8c782fcbbb89aad783ac49586756',
             token_name: 'TUSD',
             coingecko_id: 'true-usd',
+        },
+        {
+            token_address: '0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5',
+            token_name: 'NOTE',
+            coingecko_id: 'notional-finance',
+        },
+        {
+            token_address: '0xb62132e35a6c13ee1ee0f84dc5d40bad8d815206',
+            token_name: 'NEXO',
+            coingecko_id: 'nexo',
         }
         
     ]
