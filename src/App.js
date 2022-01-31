@@ -9,7 +9,7 @@ import {
 import { RetryLink } from 'apollo-link-retry';
 import { HttpLink } from '@apollo/client';
 //Init firebase statistics:
-import firebase from './config/firebase';
+//import firebase from './config/firebase';
 
 
 //Set up directional links

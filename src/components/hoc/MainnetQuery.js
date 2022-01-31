@@ -65,6 +65,7 @@ const useStyles = makeStyles((theme) => ({
 
 //Balancer URL:
 const balancerUrl = 'https://app.balancer.fi/#/pool/';
+const elementFiUrl = 'https://app.element.fi/pools/'
 //Token IDs: TODO: own config file in v3-info!
 const lidoId = '0x5a98fcbea516cf06857215779fd812ca3bef1b32';
 const balId = '0xba100000625a3754423978a60c9317c58a424e3d';
@@ -250,6 +251,7 @@ export function MainnetQuery(props) {
   //Create incentives table
   const createTableArrayFunction = (queryData, myJsonData) => {
     const tableRows = [];
+    const elementIds = ['0xEdf085f65b4F6c155e13155502Ef925c9a756003', '0x4bd6D86dEBdB9F5413e631Ad386c4427DC9D01B2', '0x7Edde0CB05ED19e03A9a47CD5E53fC57FDe1c80c']
     queryData.pools.forEach(({ id, tokens, totalLiquidity, poolType }) => {
       //TODO: Fix manual iteration, change through config and make it dynamic -> dependent on Table Head Cells
       let balAmount = 0;
@@ -261,8 +263,18 @@ export function MainnetQuery(props) {
       let nexoAmount = 0;
       let coIncentive;
       let apr = 0
-      if (myJsonData.pools[id.toString()]) {
-        myJsonData.pools[id.toString()].forEach((element) => {
+      let indxId = id;
+      let isElementEntry = false;
+      //Element.fi hard-coded check as IDs were not properly set up:
+      elementIds.forEach((element) => {
+        if (element.toLowerCase() === id.substring(0, 42)) {
+          //console.log("partial hit", element);
+          indxId = element;
+          isElementEntry = true;
+        }
+      });
+      if (myJsonData.pools[indxId]) {
+        myJsonData.pools[indxId].forEach((element) => {
           if (element.tokenAddress === balId) {
             balAmount = element.amount
             apr = apr + balAmount * getPrice(props.coinData, 'balancer') / totalLiquidity * 52 * 100
@@ -325,7 +337,7 @@ export function MainnetQuery(props) {
 
         const tableEntry = createData(
           tokens.map(e => e.symbol ? e.symbol : "MKR").join('/'),
-          balancerUrl.concat(id),
+          isElementEntry ? elementFiUrl.concat(indxId) : balancerUrl.concat(id),
           Number(totalLiquidity),
           balAmount,
           lidoAmount,
@@ -353,7 +365,7 @@ export function MainnetQuery(props) {
 
     });
     //Special case: AAVE allocation for ETH Mainnet: 12500 BAL
-    totalWorthInUSD = totalWorthInUSD + 12500 * getPrice(props.coinData, 'balancer');
+    //totalWorthInUSD = totalWorthInUSD + 12500 * getPrice(props.coinData, 'balancer');
     return totalWorthInUSD;
   }
 
