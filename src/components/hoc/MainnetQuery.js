@@ -265,12 +265,13 @@ export function MainnetQuery(props) {
       let apr = 0
       let indxId = id;
       let isElementEntry = false;
+      let elementId = '';
       //Element.fi hard-coded check as IDs were not properly set up:
       elementIds.forEach((element) => {
         if (element.toLowerCase() === id.substring(0, 42)) {
-          //console.log("partial hit", element);
-          indxId = element;
+          console.log("partial hit", element);
           isElementEntry = true;
+          elementId = element;
         }
       });
       if (myJsonData.pools[indxId]) {
@@ -337,7 +338,7 @@ export function MainnetQuery(props) {
 
         const tableEntry = createData(
           tokens.map(e => e.symbol ? e.symbol : "MKR").join('/'),
-          isElementEntry ? elementFiUrl.concat(indxId) : balancerUrl.concat(id),
+          isElementEntry ? elementFiUrl.concat(elementId) : balancerUrl.concat(id),
           Number(totalLiquidity),
           balAmount,
           lidoAmount,
