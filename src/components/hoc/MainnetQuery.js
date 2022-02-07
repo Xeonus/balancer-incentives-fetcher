@@ -74,6 +74,7 @@ const vitaId = '0x81f8f0bb1cb2a06649e51913a151f0e7ef6fa321';
 const bankId = '0x2d94aa3e47d9d5024503ca8491fce9a2fb4da198';
 const noteId = '0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5';
 const nexoId = '0xb62132e35a6c13ee1ee0f84dc5d40bad8d815206';
+const d2dId = '0x43d4a3cd90ddd2f8f4f693170c9c8098163502ad';
 
 //-------Refactor into HOC / REDUX--------
 
@@ -173,8 +174,8 @@ export function MainnetQuery(props) {
 
   const jsonData = { ...props.data };
 
-  function createData(poolName, hyperLink, totalLiq, bal, ldo, vita, note, nexo, coIncentives, apr) {
-    return { poolName, hyperLink, totalLiq, bal, ldo, vita, note, nexo, coIncentives, apr };
+  function createData(poolName, hyperLink, totalLiq, bal, ldo, vita, note, nexo, d2d, coIncentives, apr) {
+    return { poolName, hyperLink, totalLiq, bal, ldo, vita, note, nexo, d2d, coIncentives, apr };
   }
 
   let rows = [];
@@ -261,6 +262,7 @@ export function MainnetQuery(props) {
       let bankAmount = 0;
       let noteAmount = 0;
       let nexoAmount = 0;
+      let d2dAmount = 0;
       let coIncentive;
       let apr = 0
       let indxId = id;
@@ -333,6 +335,15 @@ export function MainnetQuery(props) {
               valueInUsd: Number(nexoAmount * getPrice(props.coinData, 'nexo')),
             };
           }
+          else if (element.tokenAddress === d2dId) {
+            nexoAmount = element.amount
+            apr = apr + nexoAmount * getPrice(props.coinData, 'prime') / totalLiquidity * 52 * 100
+            coIncentive = {
+              text: 'D2D',
+              value: nexoAmount,
+              valueInUsd: Number(nexoAmount * getPrice(props.coinData, 'prime')),
+            };
+          }
         });
 
         const tableEntry = createData(
@@ -344,6 +355,7 @@ export function MainnetQuery(props) {
           vitaAmount,
           noteAmount,
           nexoAmount,
+          d2dAmount,
           coIncentive,
           apr
         )
@@ -361,7 +373,7 @@ export function MainnetQuery(props) {
   const getTotalIncentivesWorth = (inputTable) => {
     var totalWorthInUSD = 0;
     inputTable.forEach((row) => {
-      totalWorthInUSD = totalWorthInUSD + row.bal * getPrice(props.coinData, 'balancer') + row.ldo * getPrice(props.coinData, 'lido-dao') + row.vita * getPrice(props.coinData, 'vitadao') + row.note * getPrice(props.coinData, 'notional-finance') + row.nexo * getPrice(props.coinData, 'nexo');
+      totalWorthInUSD = totalWorthInUSD + row.bal * getPrice(props.coinData, 'balancer') + row.ldo * getPrice(props.coinData, 'lido-dao') + row.vita * getPrice(props.coinData, 'vitadao') + row.note * getPrice(props.coinData, 'notional-finance') + row.nexo * getPrice(props.coinData, 'nexo') + row.d2d * getPrice(props.coinData, 'prime');
 
     });
     //Special case: AAVE allocation for ETH Mainnet: 12500 BAL
