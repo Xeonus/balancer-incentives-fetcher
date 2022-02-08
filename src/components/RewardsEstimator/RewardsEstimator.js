@@ -186,7 +186,12 @@ export function RewardsEstimator(props) {
             token_address: '0xb62132e35a6c13ee1ee0f84dc5d40bad8d815206',
             token_name: 'NEXO',
             coingecko_id: 'nexo',
-        }
+        },
+        {
+            token_address: '0x43d4a3cd90ddd2f8f4f693170c9c8098163502ad',
+            token_name: 'D2D',
+            coingecko_id: 'prime',
+        },
         
     ]
     
