@@ -33,6 +33,7 @@ import Roadmap from '../UI/Roadmap';
 import ClaimInfo from '../Rewards/ClaimInfo';
 import RewardsInfo from '../Rewards/RewardsInfo';
 import AddTokenToMetaMask from '../UI/AddTokenToMetaMask';
+import GaugeInfo from '../Rewards/GaugeInfo';
 
 
 
@@ -334,7 +335,8 @@ export default function Dashboard(props) {
         <Grid item xs={12}>
             <Paper elevation={3} className={classes.paper}>
                 <Box p={1}>
-                    <MainnetQuery data={jsonData} coinData={data}></MainnetQuery>
+                    {/*<MainnetQuery data={jsonData} coinData={data}></MainnetQuery>*/}
+                    <GaugeInfo></GaugeInfo>
                 </Box>
             </Paper>
         </Grid>
@@ -541,6 +543,7 @@ export default function Dashboard(props) {
                     <TabPanel value={value} index={0}>
                         <Grid container className={classes.root} spacing={2} component="span" >
                             {renderSwitch(data.chainId)}
+                            {data.chainId !== 'ethereum' ? 
                             <Grid item xs={12}>
                                 <Paper elevation={3} className={classes.paper}>
                                     <Box>
@@ -548,6 +551,7 @@ export default function Dashboard(props) {
                                     </Box>
                                 </Paper>
                             </Grid>
+                            : null }
 
                             <Grid item xs={12} component="span">
                                 <Paper elevation={3} className={classes.paper}>
