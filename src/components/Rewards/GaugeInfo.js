@@ -40,7 +40,7 @@ export default function GaugeInfo() {
                         <li>You are eligible to vote by holding veBAL. Read more about our tokenomics revamp <Link underline="always" target="_blank" href={"https://balancer-dao.gitbook.io/learn-about-balancer/fundamentals/vebal-tokenomics"}>{"here"}</Link></li>
                         <li>veBAL holders can now vote where BAL incentives should be directed for mainnet from the following <Link underline="always" target="_blank" href={"https://app.balancer.fi/#/vebal"}>{"pool whitelist"}</Link></li>
                         <li>10% of BAL allocations (14500 BAL) and pool eligibility are still determined weekly by the community ‘Ballers’.</li>
-                        <li>Polygon and Arbitrum incentives will migrate in a later point in time</li>
+                        <li>Polygon and Arbitrum incentives will migrate at a later point in time</li>
                     </ul>
                 </Typography>
             </Container>
