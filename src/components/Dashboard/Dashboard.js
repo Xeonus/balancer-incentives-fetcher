@@ -34,6 +34,7 @@ import ClaimInfo from '../Rewards/ClaimInfo';
 import RewardsInfo from '../Rewards/RewardsInfo';
 import AddTokenToMetaMask from '../UI/AddTokenToMetaMask';
 import GaugeInfo from '../Rewards/GaugeInfo';
+import Button from '@material-ui/core/Button';
 
 
 
@@ -332,11 +333,13 @@ export default function Dashboard(props) {
 
     //ETH Mainnet table
     const showEther = () => (
-        <Grid item xs={12}>
-            <Paper elevation={3} className={classes.paper}>
-                <Box p={1}>
+        <Grid item xs={6}>
+            <Paper elevation={3} className={classes.paperGlow}>
+                <Box p={4}>
                     {/*<MainnetQuery data={jsonData} coinData={data}></MainnetQuery>*/}
-                    <GaugeInfo></GaugeInfo>
+                    <Button href="https://balancer.tools" variant="contained" color="primary">
+                       Go to Balancer.tools v2
+                    </Button>
                 </Box>
             </Paper>
         </Grid>
@@ -371,7 +374,7 @@ export default function Dashboard(props) {
                 return (
                     <Header className={classes.title}  >{
                         `
-                        Liquidity Mining Incentives
+                        This site is deprecated
                         `}
                     </Header>
                 );
@@ -455,64 +458,7 @@ export default function Dashboard(props) {
                                     Balancer Tools
                                 </Typography>
                             </Box>
-                            <FormControl variant="outlined" size="small" className={classes.formControl}>
-                                <Select
-                                    labelId="demo-simple-select-label"
-                                    id="chainSelect"
-                                    value={data.chainId}
-                                    onChange={handleFormChange}
-                                    inputProps={{
-                                        name: 'chainId',
-                                        id: 'chainId-native-simple',
-                                    }}
-                                >
-                                    <MenuItem value={'ethereum'} key="eth">
-                                        <Box display="flex" alignItems="center">
-                                            <Box mr={0.5}>
-                                                <ReactRoundedImage
-                                                    image={EtherLogo}
-                                                    imageWidth="20"
-                                                    imageHeight="20"
-                                                    roundedSize="0"
-                                                />
-                                            </Box>
-                                            <Box>
-                                                Ethereum
-                                            </Box>
-                                        </Box>
-                                    </MenuItem>
-                                    <MenuItem value={'polygon'} key="poly">
-                                        <Box display="flex" alignItems="center">
-                                            <Box mr={0.5}>
-                                                <ReactRoundedImage
-                                                    image={PolygonLogo}
-                                                    imageWidth="20"
-                                                    imageHeight="20"
-                                                    roundedSize="0"
-                                                />
-                                            </Box>
-                                            <Box>
-                                                Polygon
-                                            </Box>
-                                        </Box>
-                                    </MenuItem>
-                                    <MenuItem value={'arbitrum'} key="arb">
-                                        <Box display="flex" alignItems="center">
-                                            <Box mr={0.5}>
-                                                <ReactRoundedImage
-                                                    image={ArbitrumLogo}
-                                                    imageWidth="20"
-                                                    imageHeight="20"
-                                                    roundedSize="0"
-                                                />
-                                            </Box>
-                                            <Box>
-                                                Arbitrum
-                                            </Box>
-                                        </Box>
-                                    </MenuItem>
-                                </Select>
-                            </FormControl>
+                            
                         </Box>
                         <section className={classes.rightToolbar}>
                             {isMMInstalled ? <AddTokenToMetaMask chainId={data.chainId} /> : null}
@@ -552,12 +498,6 @@ export default function Dashboard(props) {
                                 </Paper>
                             </Grid>
                             : null }
-
-                            <Grid item xs={12} component="span">
-                                <Paper elevation={3} className={classes.paper}>
-                                    <Footer className={classes.footer}></Footer>
-                                </Paper>
-                            </Grid>
                         </Grid>
                     </TabPanel>
                     <TabPanel value={value} index={1}>
